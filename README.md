@@ -2,7 +2,7 @@
 
 A conversational AI agent that lets sales reps query their contact network in natural language — without opening Salesforce.
 
-Built with Claude, Python, and a 6-agent orchestrator. AI Native Sprint · Altify · May 2026.
+Built with Claude, Python, and a 6-agent orchestrator. AI Native Sprint · AcmeCorp · May 2026.
 
 ## Live site
 
@@ -36,4 +36,4 @@ For the Python multi-agent backend (Option C), see [nexus-live.zip](https://gith
 
 ---
 
-Dan Quinn · Altify · AI Native Sprint · May 2026
+Dan Quinn · AcmeCorp · AI Native Sprint · May 2026
