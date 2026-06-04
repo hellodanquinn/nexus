@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nexus — Multi-Agent Relationship Intelligence</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pr:#1B6B4A;--pr-c:#AAEDC8;--on-pr-c:#002113;
+  --surf:#F4F9F6;--s1:#FFFFFF;--s2:#EDF4EF;--s3:#E0EDE3;
+  --out:#BDC9C0;--out-s:#6F7F74;
+  --t1:#181D19;--t2:#3F4D43;--t3:#6F7F74;
+  --f:'DM Sans',sans-serif;--m:'DM Mono',monospace;
+}
+body{background:var(--surf);color:var(--t1);font-family:var(--f);min-height:100vh}
+
+/* Nav */
+nav{background:var(--s1);border-bottom:1px solid var(--out);padding:0 40px;display:flex;align-items:center;height:56px;gap:12px}
+.logo{width:30px;height:30px;border-radius:9px;background:var(--pr);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0}
+.nav-name{font-size:16px;font-weight:600;letter-spacing:-.4px}
+.nav-sep{width:1px;height:18px;background:var(--out)}
+.nav-sub{font-size:12px;color:var(--t3);font-family:var(--m)}
+.nav-right{margin-left:auto;display:flex;gap:8px}
+.nav-link{padding:6px 14px;border:1.5px solid var(--out);border-radius:999px;font-size:12px;font-weight:500;color:var(--t2);text-decoration:none;transition:all 120ms}
+.nav-link:hover{border-color:var(--pr);color:var(--pr);background:var(--pr-c)}
+.nav-link.primary{background:var(--pr);border-color:var(--pr);color:#fff}
+.nav-link.primary:hover{opacity:.88}
+
+/* Hero */
+.hero{max-width:800px;margin:0 auto;padding:80px 40px 60px;text-align:center}
+.hero-badge{display:inline-block;font-family:var(--m);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--pr);background:var(--pr-c);padding:4px 12px;border-radius:999px;margin-bottom:24px}
+.hero h1{font-size:42px;font-weight:600;letter-spacing:-.8px;line-height:1.2;margin-bottom:16px}
+.hero h1 span{color:var(--pr)}
+.hero p{font-size:18px;color:var(--t2);line-height:1.7;max-width:580px;margin:0 auto 32px}
+.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{padding:12px 28px;border-radius:999px;font-family:var(--f);font-size:14px;font-weight:600;text-decoration:none;transition:all 150ms;display:inline-block}
+.btn-primary{background:var(--pr);color:#fff;box-shadow:0 2px 12px rgba(27,107,74,.3)}
+.btn-primary:hover{opacity:.88;transform:translateY(-1px)}
+.btn-outline{border:1.5px solid var(--out);color:var(--t2);background:var(--s1)}
+.btn-outline:hover{border-color:var(--pr);color:var(--pr)}
+
+/* Stats strip */
+.stats{display:flex;gap:0;max-width:700px;margin:0 auto 80px;background:var(--s1);border:1px solid var(--out);border-radius:16px;overflow:hidden}
+.stat{flex:1;padding:24px 20px;text-align:center;border-right:1px solid var(--out)}
+.stat:last-child{border-right:none}
+.stat-val{font-size:28px;font-weight:600;color:var(--pr);font-family:var(--m);margin-bottom:4px}
+.stat-label{font-size:12px;color:var(--t3);font-weight:500}
+
+/* Screens grid */
+.section{max-width:1100px;margin:0 auto;padding:0 40px 80px}
+.section-label{font-family:var(--m);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:20px}
+.screens{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.screen-card{background:var(--s1);border:1.5px solid var(--out);border-radius:16px;overflow:hidden;text-decoration:none;color:var(--t1);transition:all 200ms;display:flex;flex-direction:column}
+.screen-card:hover{border-color:var(--pr);box-shadow:0 4px 20px rgba(27,107,74,.12);transform:translateY(-2px)}
+.screen-card.featured{grid-column:span 2}
+.sc-preview{padding:40px 32px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--out);font-size:40px;min-height:120px;position:relative}
+.sc-preview.green{background:linear-gradient(135deg,#E0EDE3,#F4F9F6)}
+.sc-preview.teal{background:linear-gradient(135deg,#AAEDC8,#E0EDE3)}
+.sc-badge{position:absolute;top:12px;right:12px;font-family:var(--m);font-size:9px;padding:3px 8px;border-radius:999px;font-weight:500}
+.badge-live{background:var(--pr-c);color:var(--pr);border:1px solid rgba(27,107,74,.2)}
+.badge-static{background:var(--s2);color:var(--t3);border:1px solid var(--out)}
+.sc-body{padding:20px 24px;flex:1}
+.sc-num{font-family:var(--m);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
+.sc-title{font-size:17px;font-weight:600;letter-spacing:-.3px;margin-bottom:6px}
+.sc-desc{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:14px}
+.sc-tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-family:var(--m);font-size:10px;padding:3px 8px;border-radius:4px;background:var(--s2);color:var(--t3)}
+.sc-arrow{font-size:16px;color:var(--pr);margin-top:12px;display:block;font-weight:600}
+
+/* Setup notice */
+.setup{background:var(--s1);border:1px solid var(--out);border-radius:16px;padding:32px 36px;max-width:1100px;margin:0 auto 80px;display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.setup-left h2{font-size:20px;font-weight:600;margin-bottom:8px}
+.setup-left p{font-size:14px;color:var(--t2);line-height:1.65}
+.setup-steps{display:flex;flex-direction:column;gap:14px}
+.setup-step{display:flex;gap:14px;align-items:flex-start}
+.step-n{width:24px;height:24px;border-radius:6px;background:var(--pr);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:11px;flex-shrink:0;margin-top:1px}
+.step-body h4{font-size:13px;font-weight:600;margin-bottom:2px}
+.step-body p{font-size:12px;color:var(--t3);line-height:1.5}
+.step-body code{font-family:var(--m);font-size:11px;background:var(--s2);padding:2px 6px;border-radius:4px;color:var(--t2)}
+
+/* Tension quote */
+.tension{background:linear-gradient(135deg,#E0EDE3,#F4F9F6);border-radius:16px;padding:48px 56px;max-width:1100px;margin:0 auto 80px;text-align:center}
+.tension blockquote{font-size:20px;line-height:1.7;color:var(--t1);font-style:italic;max-width:720px;margin:0 auto 20px}
+.tension cite{font-family:var(--m);font-size:11px;color:var(--t3)}
+
+/* Footer */
+footer{background:var(--s1);border-top:1px solid var(--out);padding:24px 40px;display:flex;align-items:center;justify-content:space-between}
+.footer-brand{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--t3)}
+.footer-links{display:flex;gap:16px;font-size:12px}
+.footer-links a{color:var(--t3);text-decoration:none}
+.footer-links a:hover{color:var(--pr)}
+
+@media(max-width:700px){
+  .screens{grid-template-columns:1fr}
+  .screen-card.featured{grid-column:span 1}
+  .setup{grid-template-columns:1fr}
+  .stats{flex-wrap:wrap}
+  .stat{flex:1 1 40%;border-right:none;border-bottom:1px solid var(--out)}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">N</div>
+  <div class="nav-name">Nexus</div>
+  <div class="nav-sep"></div>
+  <div class="nav-sub">Multi-Agent Relationship Intelligence</div>
+  <div class="nav-right">
+    <a class="nav-link" href="screen-01-setup.html">Setup</a>
+    <a class="nav-link primary" href="screen-02-chat.html">Open chat →</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">AI Native Sprint · Altify · May 2026</div>
+  <h1>Query your relationship map<br>in <span>natural language</span></h1>
+  <p>Nexus is a multi-agent AI system that lets sales reps ask about their contact network — without opening Salesforce. Built with Claude, Python, and a 6-agent orchestrator.</p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="screen-02-chat.html">Try the live chat →</a>
+    <a class="btn btn-outline" href="screen-01-setup.html">See the setup flow</a>
+  </div>
+</div>
+
+<div class="section">
+  <div class="stats">
+    <div class="stat"><div class="stat-val">6</div><div class="stat-label">Specialist agents</div></div>
+    <div class="stat"><div class="stat-val">10</div><div class="stat-label">Intent types classified</div></div>
+    <div class="stat"><div class="stat-val">4</div><div class="stat-label">Lifecycle screens</div></div>
+    <div class="stat"><div class="stat-val">10</div><div class="stat-label">RAI decisions embedded</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">The four screens</div>
+  <div class="screens">
+
+    <div class="screen-card featured">
+      <div class="sc-preview teal">
+        💬
+        <div class="sc-badge badge-live">✦ Live AI</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-num">Screen 02</div>
+        <div class="sc-title">Chat Interface — Live AI</div>
+        <div class="sc-desc">Type a natural language query. Nexus classifies your intent, routes to the correct specialist agent, and returns structured findings with confidence signals, reasoning chain, and draft outreach — all powered by Claude.</div>
+        <div class="sc-tags">
+          <div class="tag">Conversation thread</div>
+          <div class="tag">Reasoning chain</div>
+          <div class="tag">Confidence signals</div>
+          <div class="tag">Human judgment flags</div>
+          <div class="tag">Draft outreach</div>
+          <div class="tag">Multi-turn context</div>
+        </div>
+        <a class="sc-arrow" href="screen-02-chat.html">Open live chat →</a>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="sc-preview green">⚙<div class="sc-badge badge-static">Interactive</div></div>
+      <div class="sc-body">
+        <div class="sc-num">Screen 01</div>
+        <div class="sc-title">Agent Setup</div>
+        <div class="sc-desc">First-launch configuration. Capability notice, live agent summary card, Responsible AI checklist. Every field updates the preview in real time.</div>
+        <div class="sc-tags">
+          <div class="tag">RAI checklist</div>
+          <div class="tag">Live preview</div>
+          <div class="tag">Capability notice</div>
+        </div>
+        <a class="sc-arrow" href="screen-01-setup.html">Open setup →</a>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="sc-preview green">📋<div class="sc-badge badge-static">Interactive</div></div>
+      <div class="sc-body">
+        <div class="sc-num">Screen 03</div>
+        <div class="sc-title">Handoff State</div>
+        <div class="sc-desc">Session complete. Confidence-tiered findings, gap log, can't-help state, export to Gmail/Docs, and the handoff moment card. Dismiss findings as you act on them.</div>
+        <div class="sc-tags">
+          <div class="tag">Confidence tiers</div>
+          <div class="tag">Gap log</div>
+          <div class="tag">Can't-help state</div>
+          <div class="tag">Export options</div>
+        </div>
+        <a class="sc-arrow" href="screen-03-handoff.html">Open handoff →</a>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="sc-preview green">⚠<div class="sc-badge badge-static">Interactive</div></div>
+      <div class="sc-body">
+        <div class="sc-num">Screen 04</div>
+        <div class="sc-title">Edge Cases</div>
+        <div class="sc-desc">Four states where the agent reaches its limits. No findings (a valid result). Low context (asks, does not guess). Contradiction (surfaces conflict, does not resolve). Unknown pattern (partial output only).</div>
+        <div class="sc-tags">
+          <div class="tag">No findings</div>
+          <div class="tag">Low context</div>
+          <div class="tag">Contradiction</div>
+          <div class="tag">Unknown pattern</div>
+        </div>
+        <a class="sc-arrow" href="screen-04-edge-cases.html">Open edge cases →</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="tension">
+  <blockquote>"How do you design a system where a sales rep trusts the agent enough to act on its findings — but never trusts it so much that they stop thinking? Those are opposite failure modes, and the product has to hold the tension between them deliberately."</blockquote>
+  <cite>The design tension at the centre of Nexus</cite>
+</div>
+
+<div class="section">
+  <div class="setup">
+    <div class="setup-left">
+      <h2>To enable the live chat</h2>
+      <p>The chat screen calls a serverless function that proxies to the Anthropic API. Your API key lives in Netlify's environment variables — never in the browser. Set it once and the chat works immediately.</p>
+    </div>
+    <div class="setup-steps">
+      <div class="setup-step">
+        <div class="step-n">1</div>
+        <div class="step-body">
+          <h4>Get your Anthropic API key</h4>
+          <p>Visit <a href="https://console.anthropic.com" target="_blank" style="color:var(--pr)">console.anthropic.com</a> → API Keys → Create key</p>
+        </div>
+      </div>
+      <div class="setup-step">
+        <div class="step-n">2</div>
+        <div class="step-body">
+          <h4>Add it to Netlify</h4>
+          <p>Site settings → Environment variables → Add variable<br>Key: <code>ANTHROPIC_API_KEY</code> &nbsp; Value: <code>sk-ant-...</code></p>
+        </div>
+      </div>
+      <div class="setup-step">
+        <div class="step-n">3</div>
+        <div class="step-body">
+          <h4>Trigger a redeploy</h4>
+          <p>Deploys → Trigger deploy → Deploy site. Takes about 30 seconds.</p>
+        </div>
+      </div>
+      <div class="setup-step">
+        <div class="step-n">4</div>
+        <div class="step-body">
+          <h4>Open the chat and type a query</h4>
+          <p>Try: <code>Who should I reconnect with this week?</code></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-brand">
+    <div class="logo" style="width:22px;height:22px;font-size:11px">N</div>
+    Nexus · Dan Quinn · Altify · AI Native Sprint · May 2026
+  </div>
+  <div class="footer-links">
+    <a href="screen-01-setup.html">Setup</a>
+    <a href="screen-02-chat.html">Chat</a>
+    <a href="screen-03-handoff.html">Handoff</a>
+    <a href="screen-04-edge-cases.html">Edge Cases</a>
+  </div>
+</footer>
+
+</body>
+</html>

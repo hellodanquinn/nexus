@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nexus — Edge Cases</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pr:#1B6B4A;--pr-c:#AAEDC8;--on-pr-c:#002113;
+  --er:#BA1A1A;--er-c:#FFDAD6;--on-er:#410002;
+  --wn:#7A5200;--wn-c:#FFDEA8;
+  --pu:#3A6473;--pu-c:#BDE9FA;
+  --bl:#1565C0;--bl-c:#BBDEFB;
+  --surf:#F4F9F6;--s1:#FFFFFF;--s2:#EDF4EF;--s3:#E0EDE3;
+  --out:#BDC9C0;--out-s:#6F7F74;
+  --t1:#181D19;--t2:#3F4D43;--t3:#6F7F74;
+  --r-xs:4px;--r-sm:8px;--r-md:12px;--r-lg:16px;--r-f:999px;
+  --sh1:0 1px 3px rgba(0,0,0,.07),0 0 0 1px var(--out);
+  --f:'DM Sans',sans-serif;--m:'DM Mono',monospace;
+}
+body{background:var(--surf);color:var(--t1);font-family:var(--f);font-size:14px;min-height:100vh}
+
+/* Topbar */
+.tb{height:56px;background:var(--s1);border-bottom:1px solid var(--out);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:20}
+.tb-l{display:flex;align-items:center;gap:10px}
+.logo{width:28px;height:28px;border-radius:8px;background:var(--pr);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px}
+.tb-name{font-size:15px;font-weight:600;letter-spacing:-.3px}
+.tb-sep{width:1px;height:18px;background:var(--out)}
+.badge-e{font-family:var(--m);font-size:10px;letter-spacing:.08em;padding:3px 10px;border-radius:var(--r-f);background:var(--wn-c);color:var(--wn);border:1px solid rgba(122,82,0,.25)}
+.tbtn{padding:5px 12px;border:1.5px solid var(--out);border-radius:var(--r-f);font-size:11px;font-family:var(--m);color:var(--t3);background:transparent;cursor:pointer;transition:all 120ms}
+.tbtn:hover{border-color:var(--out-s);color:var(--t2);background:var(--s2)}
+
+/* Tab strip */
+.tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--out);padding:0 24px;overflow-x:auto;gap:0}
+.tab{display:flex;align-items:center;gap:8px;padding:13px 18px;font-size:12px;font-weight:500;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:all 120ms;white-space:nowrap;font-family:var(--m);letter-spacing:.04em}
+.tab:hover{color:var(--t2)}
+.tab.on{color:var(--t1);border-bottom-color:var(--wn)}
+.tdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.tn{font-size:9px;color:var(--t3)}
+.tab.on .tn{color:var(--wn)}
+
+/* Layout */
+.layout{display:grid;grid-template-columns:1fr 260px;min-height:calc(100vh - 108px)}
+
+/* Main */
+.main{padding:32px 40px;overflow-y:auto}
+
+/* State header */
+.state-hdr{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.state-title{font-size:20px;font-weight:600;letter-spacing:-.4px}
+.state-tag{font-family:var(--m);font-size:10px;padding:3px 10px;border-radius:var(--r-f);letter-spacing:.06em}
+
+/* Shared components */
+.card{background:var(--s1);border:1px solid var(--out);border-radius:var(--r-lg);overflow:hidden;margin-bottom:16px;box-shadow:var(--sh1)}
+.card-hdr{padding:14px 18px;background:var(--s2);border-bottom:1px solid var(--out)}
+.card-title{font-size:13px;font-weight:600}
+.card-body{padding:16px 18px}
+.btn-r{padding:7px 16px;border-radius:var(--r-f);font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--out);background:var(--s1);color:var(--t2);font-family:var(--f);transition:all 120ms;margin-right:8px;margin-top:8px;display:inline-block}
+.btn-r:hover{border-color:var(--out-s);background:var(--s2)}
+.btn-r.pr{background:var(--pr);border-color:var(--pr);color:#fff;font-weight:600}
+.btn-r.pr:hover{opacity:.88}
+
+/* ── EC1: No findings ── */
+.nf-center{text-align:center;max-width:480px;margin:0 auto;padding:32px 0}
+.nf-ico{width:64px;height:64px;border-radius:var(--r-lg);background:var(--pr-c);border:1px solid rgba(27,107,74,.2);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 24px}
+.nf-title{font-size:18px;font-weight:600;margin-bottom:10px;letter-spacing:-.3px}
+.nf-desc{font-size:14px;color:var(--t2);line-height:1.7;margin-bottom:24px}
+.ran-grid{background:var(--s1);border:1px solid var(--out);border-radius:var(--r-md);padding:14px 18px;margin-bottom:20px;text-align:left}
+.ran-l{font-family:var(--m);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
+.ran-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--out);font-size:12px}
+.ran-row:last-child{border-bottom:none}
+.rk{font-family:var(--m);font-size:10px;color:var(--t3)}
+.rv{color:var(--pr);font-family:var(--m);font-size:10px}
+.nf-note{font-size:12px;color:var(--t3);line-height:1.7;font-style:italic;margin-bottom:24px}
+.nf-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* ── EC2: Low context ── */
+.lc-intro{display:flex;gap:14px;padding:18px;background:var(--s1);border:1px solid var(--out);border-radius:var(--r-lg);margin-bottom:20px;box-shadow:var(--sh1)}
+.lc-ico{font-size:22px;flex-shrink:0;margin-top:2px}
+.lc-title{font-size:14px;font-weight:600;margin-bottom:6px}
+.lc-desc{font-size:13px;color:var(--t2);line-height:1.65}
+.q-card{background:var(--s1);border:1px solid var(--out);border-radius:var(--r-lg);overflow:hidden;margin-bottom:12px;box-shadow:var(--sh1)}
+.q-label{font-family:var(--m);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);padding:10px 16px 4px}
+.q-text{font-size:14px;font-weight:600;padding:0 16px 12px}
+.q-opts{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px 14px}
+.qopt{padding:7px 14px;border:1.5px solid var(--out);border-radius:var(--r-f);font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;transition:all 120ms}
+.qopt:hover,.qopt.on{border-color:var(--pr);color:var(--pr);background:var(--pr-c)}
+.q-or{padding:0 16px 6px;font-size:11px;color:var(--t3)}
+.q-inp{width:calc(100% - 32px);margin:0 16px 14px;background:var(--s2);border:1.5px solid var(--out);border-radius:var(--r-sm);padding:8px 12px;font-size:12px;color:var(--t1);font-family:var(--f);outline:none}
+.q-inp:focus{border-color:var(--pr)}
+.lc-note{font-size:11px;color:var(--t3);padding:12px 16px;background:var(--s1);border:1px solid var(--out);border-radius:var(--r-md);margin-bottom:16px}
+
+/* ── EC3: Contradiction ── */
+.contra-banner{display:flex;gap:12px;padding:16px 18px;background:var(--er-c);border:1px solid rgba(186,26,26,.2);border-radius:var(--r-lg);margin-bottom:20px}
+.cb-icon{font-size:16px;color:var(--er);flex-shrink:0;margin-top:2px;font-family:var(--m)}
+.cb-title{font-size:14px;font-weight:600;color:var(--er);margin-bottom:4px}
+.cb-desc{font-size:12px;color:var(--t2);line-height:1.6}
+.signals{display:grid;grid-template-columns:1fr 40px 1fr;gap:12px;align-items:start;margin-bottom:16px}
+.sig{background:var(--s1);border:1px solid var(--out);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh1)}
+.sig-hdr{padding:10px 14px;background:var(--s2);border-bottom:1px solid var(--out);display:flex;align-items:center;justify-content:space-between}
+.sig-src{font-family:var(--m);font-size:10px;color:var(--t3)}
+.sig-w{font-family:var(--m);font-size:10px}
+.wstr{color:var(--pr)}
+.wwk{color:var(--er)}
+.sig-body{padding:12px 14px}
+.sig-text{font-size:12px;color:var(--t2);line-height:1.65;margin-bottom:8px}
+.sig-ev{font-size:11px;color:var(--t3);font-style:italic}
+.vs-wrap{display:flex;align-items:center;justify-content:center;padding-top:40px}
+.vs-dot{width:32px;height:32px;border-radius:50%;background:var(--s1);border:1.5px solid var(--out);display:flex;align-items:center;justify-content:center;font-family:var(--m);font-size:11px;color:var(--er);font-weight:600;box-shadow:var(--sh1)}
+.impl-card{background:var(--s1);border:1px solid var(--out);border-radius:var(--r-lg);padding:16px;margin-bottom:16px;box-shadow:var(--sh1)}
+.impl-l{font-family:var(--m);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.impl-text{font-size:13px;color:var(--t2);line-height:1.65;margin-bottom:12px}
+.hjf{display:flex;gap:8px;padding:9px 11px;background:var(--wn-c);border:1px solid rgba(122,82,0,.2);border-radius:var(--r-sm);font-size:11px;color:var(--wn);line-height:1.55}
+.hji{font-family:var(--m);font-size:10px;flex-shrink:0;margin-top:1px}
+
+/* ── EC4: Unknown pattern ── */
+.unk-banner{display:flex;gap:14px;padding:18px;background:var(--pu-c);border:1px solid rgba(58,100,115,.2);border-radius:var(--r-lg);margin-bottom:20px;box-shadow:var(--sh1)}
+.ub-title{font-size:14px;font-weight:600;color:var(--pu);margin-bottom:6px}
+.ub-desc{font-size:13px;color:var(--t2);line-height:1.65}
+.unk-what{background:var(--s1);border:1px solid var(--out);border-radius:var(--r-lg);padding:16px;margin-bottom:14px;box-shadow:var(--sh1)}
+.uw-l{font-family:var(--m);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
+.uw-row{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--out);font-size:12px}
+.uw-row:last-child{border-bottom:none}
+.uwk{font-family:var(--m);font-size:10px;color:var(--t3);flex-shrink:0;width:90px;margin-top:1px}
+.uwv{color:var(--t2);line-height:1.5}
+.partial{background:var(--s2);border:1px solid var(--out);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:14px}
+.partial-l{font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--pu);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.partial-c{font-size:10px;color:var(--t3);font-style:italic}
+.pf{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--out);font-size:12px;color:var(--t2);line-height:1.55}
+.pf:last-child{border-bottom:none}
+.pfdot{width:5px;height:5px;border-radius:50%;background:var(--pu);flex-shrink:0;margin-top:5px}
+.interp{display:flex;gap:8px;padding:9px 11px;background:var(--pu-c);border:1px solid rgba(58,100,115,.2);border-radius:var(--r-sm);font-size:11px;color:var(--pu);line-height:1.55;margin-bottom:16px}
+
+/* Right panel */
+.side{background:var(--s1);border-left:1px solid var(--out);padding:22px 18px;overflow-y:auto}
+.pl{font-family:var(--m);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
+.srow{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--out);font-size:12px}
+.srow:last-child{border-bottom:none}
+.sk{font-family:var(--m);font-size:10px;color:var(--t3)}
+.sv{color:var(--t2)}
+.sv.ok{color:var(--pr);font-weight:500}
+.sv.warn{color:var(--wn)}
+.sv.err{color:var(--er)}
+.sv.pu{color:var(--pu)}
+.rai-b{background:var(--s2);border:1px solid var(--out);border-radius:var(--r-md);padding:12px 14px}
+.ri{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:11px;color:var(--t3);line-height:1.5}
+.rc{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--out);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;margin-top:1px;transition:all 200ms}
+.rc.ok{background:var(--pr-c);border-color:var(--pr);color:var(--pr)}
+.rc.warn{background:var(--wn-c);border-color:var(--wn);color:var(--wn)}
+.ec-nav{display:flex;flex-direction:column;gap:6px;margin-top:16px}
+.ecni{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1.5px solid var(--out);border-radius:var(--r-sm);font-size:11px;color:var(--t3);cursor:pointer;transition:all 120ms;font-weight:500}
+.ecni:hover{border-color:var(--out-s);color:var(--t2);background:var(--s2)}
+.ecni.on{border-color:var(--wn);background:var(--wn-c);color:var(--wn)}
+.ecni-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.main,.side{animation:fu .25s ease both}.side{animation-delay:.07s}
+</style>
+</head>
+<body>
+
+<div class="tb">
+  <div class="tb-l">
+    <div class="logo">N</div>
+    <div class="tb-name">Nexus</div>
+    <div class="tb-sep"></div>
+    <div class="badge-e">Edge Cases</div>
+    <span style="font-size:12px;color:var(--t3);margin-left:6px">States where the agent reaches its limits</span>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="tbtn" onclick="alert('Returning to main query surface.')">← Back to chat</button>
+    <button class="tbtn" onclick="alert('Agent settings.')">Settings</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab on" onclick="st(0)" id="t0"><div class="tdot" style="background:var(--pr)"></div>No findings<span class="tn">01</span></div>
+  <div class="tab" onclick="st(1)" id="t1"><div class="tdot" style="background:var(--bl)"></div>Low context<span class="tn">02</span></div>
+  <div class="tab" onclick="st(2)" id="t2"><div class="tdot" style="background:var(--er)"></div>Contradiction<span class="tn">03</span></div>
+  <div class="tab" onclick="st(3)" id="t3"><div class="tdot" style="background:var(--pu)"></div>Unknown pattern<span class="tn">04</span></div>
+</div>
+
+<div class="layout">
+  <div class="main" id="main"></div>
+
+  <div class="side">
+    <div class="pl">State details</div>
+    <div id="srows" style="margin-bottom:20px"></div>
+    <div class="pl">Responsible AI</div>
+    <div class="rai-b" id="srais"></div>
+    <div class="pl" style="margin-top:16px">All edge cases</div>
+    <div class="ec-nav">
+      <div class="ecni on" onclick="st(0)" id="n0"><div class="ecni-dot" style="background:var(--pr)"></div>No findings</div>
+      <div class="ecni" onclick="st(1)" id="n1"><div class="ecni-dot" style="background:var(--bl)"></div>Low context</div>
+      <div class="ecni" onclick="st(2)" id="n2"><div class="ecni-dot" style="background:var(--er)"></div>Contradiction</div>
+      <div class="ecni" onclick="st(3)" id="n3"><div class="ecni-dot" style="background:var(--pu)"></div>Unknown pattern</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const states=[
+  {
+    title:"No findings",tag:"Agent ran — nothing significant found",tagBg:"var(--pr-c)",tagColor:"var(--pr)",
+    rows:[{k:"agents run",v:"3",c:"ok"},{k:"findings",v:"0",c:""},{k:"latency",v:"0.9s",c:""},{k:"query",v:"Network gap",c:""},{k:"status",v:"Complete",c:"ok"}],
+    rai:[{ok:true,t:"Agent ran fully — not an error"},{ok:true,t:"Absence of findings is a valid output"},{ok:true,t:"User given clear next actions"},{ok:true,t:"No false positives generated"}],
+    html:`<div class="nf-center">
+      <div class="nf-ico">◎</div>
+      <div class="nf-title">No significant findings for this query</div>
+      <div class="nf-desc">Nexus ran a full analysis of your Horizon Corp relationship network for coverage gaps. Based on current data, your contact coverage looks healthy across all key roles. This is not an error — it is a result.</div>
+      <div class="ran-grid">
+        <div class="ran-l">What Nexus checked</div>
+        <div class="ran-row"><div class="rk">Relationship Analyst</div><div class="rv">6 contacts scored ✓</div></div>
+        <div class="ran-row"><div class="rk">Action Recommender</div><div class="rv">No priority gaps found ✓</div></div>
+        <div class="ran-row"><div class="rk">Notification Agent</div><div class="rv">No stale nudges pending ✓</div></div>
+        <div class="ran-row"><div class="rk">Data checked at</div><div class="rv">Today, 09:32</div></div>
+      </div>
+      <div class="nf-note">Nexus does not fabricate findings to fill an empty state. If you expected results, try adjusting the query scope or checking a different contact group.</div>
+      <div class="nf-btns">
+        <div class="btn-r pr" onclick="act('Try a different query')">Try a different query</div>
+        <div class="btn-r" onclick="act('Broaden scope')">Broaden scope</div>
+        <div class="btn-r" onclick="act('View all scores')">View all scores</div>
+      </div>
+    </div>`
+  },
+  {
+    title:"Low context",tag:"Agent asks — does not guess",tagBg:"var(--bl-c)",tagColor:"var(--bl)",
+    rows:[{k:"setup",v:"Partial",c:"warn"},{k:"account",v:"Not set",c:"err"},{k:"goal",v:"Not set",c:"err"},{k:"agents ready",v:"0 of 6",c:""},{k:"status",v:"Awaiting context",c:"warn"}],
+    rai:[{ok:true,t:"Agent does not proceed without minimum context"},{ok:true,t:"Questions are specific, not open-ended"},{ok:false,t:"Account context required before routing"},{ok:true,t:"User can answer in one tap"}],
+    html:`<div>
+      <div class="lc-intro"><div class="lc-ico">◈</div><div><div class="lc-title">A little more context before Nexus can help</div><div class="lc-desc">Your query arrived without enough setup to route accurately. Rather than guess and return something unhelpful, Nexus is asking three quick questions. Tap an option or type your own.</div></div></div>
+      <div class="q-card">
+        <div class="q-label">Question 1 of 3</div>
+        <div class="q-text">Which account is this query about?</div>
+        <div class="q-opts">
+          <div class="qopt on" onclick="qsel(this)">Horizon Corp</div>
+          <div class="qopt" onclick="qsel(this)">Acme Industries</div>
+          <div class="qopt" onclick="qsel(this)">NovaTech</div>
+        </div>
+        <div class="q-or">or type:</div>
+        <input class="q-inp" placeholder="Account name…">
+      </div>
+      <div class="q-card">
+        <div class="q-label">Question 2 of 3</div>
+        <div class="q-text">What are you trying to achieve?</div>
+        <div class="q-opts">
+          <div class="qopt" onclick="qsel(this)">Advance the deal</div>
+          <div class="qopt" onclick="qsel(this)">Identify risks</div>
+          <div class="qopt" onclick="qsel(this)">Draft outreach</div>
+          <div class="qopt" onclick="qsel(this)">Check network gaps</div>
+        </div>
+      </div>
+      <div class="q-card">
+        <div class="q-label">Question 3 of 3</div>
+        <div class="q-text">How deep should the analysis be?</div>
+        <div class="q-opts">
+          <div class="qopt" onclick="qsel(this)">Quick scan</div>
+          <div class="qopt on" onclick="qsel(this)">Standard</div>
+          <div class="qopt" onclick="qsel(this)">Deep analysis</div>
+        </div>
+      </div>
+      <div class="lc-note">These answers apply to this session only. To avoid being asked again, complete agent setup — it takes about two minutes.</div>
+      <div class="btn-r pr" onclick="act('Proceed with answers')">Proceed →</div>
+      <div class="btn-r" onclick="act('Complete full setup')">Complete full setup</div>
+    </div>`
+  },
+  {
+    title:"Contradiction",tag:"Two signals in direct conflict — not resolved by Nexus",tagBg:"var(--er-c)",tagColor:"var(--er)",
+    rows:[{k:"signals",v:"2",c:""},{k:"agreement",v:"None",c:"err"},{k:"nexus resolved",v:"No",c:"warn"},{k:"hjf flag",v:"Active",c:"warn"},{k:"status",v:"Needs decision",c:"warn"}],
+    rai:[{ok:true,t:"Contradiction surfaced — not averaged"},{ok:true,t:"Both signals shown with equal weight"},{ok:false,t:"Agent cannot resolve — human decision"},{ok:true,t:"Design implication made explicit"}],
+    html:`<div>
+      <div class="contra-banner"><div class="cb-icon">≠</div><div><div class="cb-title">Contradiction detected — Nexus is not resolving this</div><div class="cb-desc">Two data sources give directly opposing signals about Priya Nair's current engagement. Nexus has surfaced both, weighted the evidence, and stopped. The decision belongs to you.</div></div></div>
+      <div class="signals">
+        <div class="sig">
+          <div class="sig-hdr"><div class="sig-src">Relationship Analyst</div><div class="sig-w wstr">Strong evidence</div></div>
+          <div class="sig-body"><div class="sig-text">Priya Nair's strength score is 0.88. Interaction frequency is weekly. Last contact 17 days ago. Score trending upward over 90 days.</div><div class="sig-ev">3 mutual connections · Consistent cadence · Active champion role</div></div>
+        </div>
+        <div class="vs-wrap"><div class="vs-dot">vs</div></div>
+        <div class="sig">
+          <div class="sig-hdr"><div class="sig-src">Data Enrichment</div><div class="sig-w wwk">Weaker evidence</div></div>
+          <div class="sig-body"><div class="sig-text">Recent LinkedIn activity suggests Priya may be exploring new roles. Two posts in the last 30 days mention career development. Profile updated 12 days ago.</div><div class="sig-ev">1 data point · External signal only · No internal confirmation</div></div>
+        </div>
+      </div>
+      <div class="impl-card">
+        <div class="impl-l">Design implication of this contradiction</div>
+        <div class="impl-text">If Signal A is correct: increase cadence with Priya and use her as your primary path to James Okafor. If Signal B is correct: her influence may be diminishing — begin identifying a secondary champion before she exits the account.</div>
+        <div class="hjf"><div class="hji">△</div><div>Nexus cannot determine which signal reflects Priya's current state. Acting on the wrong one carries real deal risk. This decision requires your judgment and any offline context you have.</div></div>
+      </div>
+      <div class="btn-r pr" onclick="act('Priya is staying — use Signal A')">Priya is staying — use Signal A</div>
+      <div class="btn-r" onclick="act('Find backup champion')">Find backup champion</div>
+      <div class="btn-r" onclick="act('Add note to Priya contact')">Add note to contact</div>
+    </div>`
+  },
+  {
+    title:"Unknown pattern",tag:"Agent lacks confidence to evaluate — partial output only",tagBg:"var(--pu-c)",tagColor:"var(--pu)",
+    rows:[{k:"pattern seen",v:"Rarely",c:"warn"},{k:"confidence",v:"Insufficient",c:"err"},{k:"partial output",v:"Yes",c:"pu"},{k:"interp. flag",v:"Active",c:"pu"},{k:"status",v:"Partial only",c:"warn"}],
+    rai:[{ok:true,t:"Agent honest about evaluation limits"},{ok:true,t:"Partial output clearly labelled"},{ok:false,t:"Full analysis not possible — training gap"},{ok:true,t:"User directed to next step"}],
+    html:`<div>
+      <div class="unk-banner"><div style="font-size:22px;flex-shrink:0;margin-top:2px">◇</div><div><div class="ub-title">Unfamiliar pattern — partial output only</div><div class="ub-desc">Your query involves a relationship structure Nexus has seen too rarely to evaluate with confidence: a multi-vendor influencer coalition at a single account. Nexus is flagging this transparently rather than producing a confident output that may be wrong.</div></div></div>
+      <div class="unk-what">
+        <div class="uw-l">What Nexus found vs what it cannot assess</div>
+        <div class="uw-row"><div class="uwk">Can assess</div><div class="uwv">Individual strength scores for Elena Vasquez and Tom Brennan separately</div></div>
+        <div class="uw-row"><div class="uwk">Cannot assess</div><div class="uwv">The combined influence dynamic between two competing-vendor contacts both targeting the same buyer (James Okafor)</div></div>
+        <div class="uw-row"><div class="uwk">Why</div><div class="uwv">Multi-vendor influencer coalitions are outside Nexus's evaluated relationship patterns. Producing a ranking here would require interpretive leaps it cannot justify from data alone.</div></div>
+      </div>
+      <div class="partial">
+        <div class="partial-l">Partial output <span class="partial-c">· interpretation flags active</span></div>
+        <div class="pf"><div class="pfdot"></div><div>Elena Vasquez (0.51, Influencer) has a positive influence path to Sarah Mitchell — this part of the network is within normal parameters and can be acted on.</div></div>
+        <div class="pf"><div class="pfdot"></div><div>Tom Brennan's counter-influence to James Okafor is documented but Nexus cannot model how his influence interacts with Elena's when both are active simultaneously.</div></div>
+      </div>
+      <div class="interp"><div style="font-family:var(--m);font-size:10px;flex-shrink:0;margin-top:1px">◇</div><div>Nexus is reasoning beyond its evaluated pattern set here. These partial findings are based on individual data — not on modelling multi-vendor coalition dynamics. Weight them accordingly.</div></div>
+      <div class="btn-r pr" onclick="act('Proceed with partial findings')">Proceed with partial findings</div>
+      <div class="btn-r" onclick="act('Why can\'t you assess this?')">Why can't you assess this?</div>
+      <div class="btn-r" onclick="act('Flag this pattern')">Flag this pattern</div>
+    </div>`
+  }
+];
+
+let cur=0;
+function st(i){
+  cur=i;
+  const s=states[i];
+  // Tabs
+  for(let j=0;j<4;j++){document.getElementById('t'+j).classList.toggle('on',j===i);document.getElementById('n'+j).classList.toggle('on',j===i);}
+  // Main
+  document.getElementById('main').innerHTML=`<div class="state-hdr"><div class="state-title">${s.title}</div><div class="state-tag" style="background:${s.tagBg};color:${s.tagColor}">${s.tag}</div></div>${s.html}`;
+  // Side rows
+  document.getElementById('srows').innerHTML=s.rows.map(r=>`<div class="srow"><div class="sk">${r.k}</div><div class="sv${r.c?' '+r.c:''}">${r.v}</div></div>`).join('');
+  // RAI
+  document.getElementById('srais').innerHTML=s.rai.map(r=>`<div class="ri"><div class="rc${r.ok?' ok':' warn'}">${r.ok?'✓':'!'}</div><div>${r.t}</div></div>`).join('');
+}
+function qsel(el){const g=el.closest('.q-opts');g.querySelectorAll('.qopt').forEach(o=>o.classList.remove('on'));el.classList.add('on');}
+function act(l){alert('Action: '+l);}
+st(0);
+</script>
+</body>
+</html>

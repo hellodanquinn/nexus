@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nexus — Handoff</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pr:#1B6B4A;--pr-c:#AAEDC8;--on-pr-c:#002113;
+  --er:#BA1A1A;--er-c:#FFDAD6;
+  --wn:#7A5200;--wn-c:#FFDEA8;
+  --pu:#3A6473;--pu-c:#BDE9FA;
+  --surf:#F4F9F6;--s1:#FFFFFF;--s2:#EDF4EF;--s3:#E0EDE3;
+  --out:#BDC9C0;--out-s:#6F7F74;
+  --t1:#181D19;--t2:#3F4D43;--t3:#6F7F74;
+  --r-xs:4px;--r-sm:8px;--r-md:12px;--r-lg:16px;--r-f:999px;
+  --sh1:0 1px 3px rgba(0,0,0,.07),0 0 0 1px var(--out);
+  --f:'DM Sans',sans-serif;--m:'DM Mono',monospace;
+}
+body{background:var(--surf);color:var(--t1);font-family:var(--f);font-size:14px;min-height:100vh}
+
+/* Topbar */
+.tb{height:56px;background:var(--s1);border-bottom:1px solid var(--out);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:20}
+.tb-l{display:flex;align-items:center;gap:10px}
+.logo{width:28px;height:28px;border-radius:8px;background:var(--pr);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px}
+.tb-name{font-size:15px;font-weight:600;letter-spacing:-.3px}
+.tb-sep{width:1px;height:18px;background:var(--out)}
+.badge{font-family:var(--m);font-size:10px;letter-spacing:.08em;padding:3px 10px;border-radius:var(--r-f);background:var(--pu-c);color:var(--pu);border:1px solid rgba(58,100,115,.25)}
+.tb-r{display:flex;gap:8px}
+.tbtn{padding:6px 14px;border:1.5px solid var(--out);border-radius:var(--r-f);font-size:12px;font-family:var(--f);font-weight:500;color:var(--t2);background:transparent;cursor:pointer;transition:all 120ms}
+.tbtn:hover{border-color:var(--out-s);background:var(--s2)}
+.tbtn.pr{background:var(--pr);border-color:var(--pr);color:#fff;font-weight:600}
+.tbtn.pr:hover{opacity:.88}
+
+/* Layout */
+.layout{display:grid;grid-template-columns:1fr 272px;min-height:calc(100vh - 56px)}
+
+/* Main */
+.main{padding:32px 40px;overflow-y:auto}
+
+/* Summary banner */
+.banner{background:var(--s1);border:1px solid var(--out);border-radius:var(--r-lg);padding:20px 24px;margin-bottom:28px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;box-shadow:var(--sh1)}
+.bstat{display:flex;flex-direction:column;gap:3px}
+.bval{font-size:22px;font-weight:600;font-family:var(--m)}
+.bval.g{color:var(--pr)}
+.bval.a{color:var(--wn)}
+.bval.r{color:var(--er)}
+.bval.p{color:var(--pu)}
+.blbl{font-size:9px;font-family:var(--m);letter-spacing:.12em;text-transform:uppercase;color:var(--t3)}
+.bdiv{width:1px;height:36px;background:var(--out)}
+.bmeta{flex:1;text-align:right;font-size:11px;color:var(--t3);font-family:var(--m);line-height:1.8}
+
+/* Section header */
+.sh{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.sh-l{font-family:var(--m);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--t3)}
+.sh::after{content:'';flex:1;height:1px;background:var(--out)}
+.tier-badge{font-family:var(--m);font-size:9px;padding:3px 9px;border-radius:var(--r-f)}
+.tb-h{background:var(--pr-c);color:var(--pr)}
+.tb-m{background:var(--wn-c);color:var(--wn)}
+.tb-l2{background:var(--er-c);color:var(--er)}
+.tb-g{background:var(--pu-c);color:var(--pu)}
+.tb-n{background:var(--s3);color:var(--t3)}
+
+/* Finding cards */
+.findings{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.fc{background:var(--s1);border:1px solid var(--out);border-radius:var(--r-lg);overflow:hidden;transition:box-shadow 150ms;box-shadow:var(--sh1)}
+.fc:hover{box-shadow:0 3px 8px rgba(0,0,0,.1),0 0 0 1px var(--out)}
+.fc.dismissed{opacity:.4}
+.fc-top{display:flex}
+.stripe{width:4px;flex-shrink:0}
+.s-h{background:var(--pr)}
+.s-m{background:var(--wn)}
+.s-l{background:var(--er)}
+.s-n{background:var(--out-s)}
+.s-g{background:var(--pu)}
+.fc-body{flex:1;padding:14px 16px}
+.fc-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.fc-title{font-size:14px;font-weight:600}
+.fc-meta{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.fc-conf{font-family:var(--m);font-size:9px;padding:2px 7px;border-radius:var(--r-xs)}
+.c-h{background:var(--pr-c);color:var(--pr)}
+.c-m{background:var(--wn-c);color:var(--wn)}
+.c-l{background:var(--er-c);color:var(--er)}
+.c-g{background:var(--pu-c);color:var(--pu)}
+.fc-agent{font-size:11px;font-family:var(--m);color:var(--t3)}
+.fc-text{font-size:13px;color:var(--t2);line-height:1.65;margin-bottom:10px}
+.fc-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fab{padding:6px 13px;border-radius:var(--r-f);font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--out);background:var(--s1);color:var(--t2);font-family:var(--f);transition:all 120ms}
+.fab:hover{border-color:var(--out-s);background:var(--s2)}
+.fab.pr{background:var(--pr);border-color:var(--pr);color:#fff;font-weight:600}
+.fab.pr:hover{opacity:.88}
+.fdismiss{margin-left:auto;font-family:var(--m);font-size:10px;color:var(--t3);cursor:pointer;padding:4px 8px;border-radius:var(--r-xs);transition:all 120ms}
+.fdismiss:hover{color:var(--er);background:var(--er-c)}
+
+/* HJF */
+.hjf{display:flex;gap:8px;padding:9px 11px;background:var(--wn-c);border:1px solid rgba(122,82,0,.2);border-radius:var(--r-sm);font-size:11px;color:var(--wn);line-height:1.55;margin-bottom:10px}
+.hji{font-family:var(--m);font-size:10px;flex-shrink:0;margin-top:1px}
+
+/* Can't help */
+.cant{display:flex;gap:12px;padding:16px;background:var(--s2);border:1.5px dashed var(--out-s);border-radius:var(--r-lg);margin-bottom:10px}
+.cant-icon{font-size:20px;flex-shrink:0;margin-top:2px}
+.cant-title{font-size:14px;font-weight:600;color:var(--t2);margin-bottom:4px}
+.cant-text{font-size:12px;color:var(--t3);line-height:1.65;margin-bottom:10px}
+.cant-next{font-size:12px;font-weight:600;color:var(--t2);margin-bottom:6px}
+.cant-step{font-size:11px;color:var(--t3);padding-left:14px;position:relative;line-height:1.5;margin-bottom:4px}
+.cant-step::before{content:'→';position:absolute;left:0;color:var(--t3)}
+
+/* Gap log */
+.gap-log{background:var(--pu-c);border:1px solid rgba(58,100,115,.2);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:28px}
+.gap-log-l{font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--pu);text-transform:uppercase;margin-bottom:10px}
+.gap-item{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid rgba(58,100,115,.15);font-size:12px;color:var(--t2);line-height:1.5}
+.gap-item:last-child{border-bottom:none}
+.gap-n{font-family:var(--m);font-size:10px;color:var(--pu);flex-shrink:0;width:18px}
+
+/* Action row */
+.act-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 16px;background:var(--s2);border-top:1px solid var(--out)}
+
+/* Right panel */
+.side{background:var(--s1);border-left:1px solid var(--out);padding:24px 20px;overflow-y:auto}
+.pl{font-family:var(--m);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
+
+/* Progress bars */
+.prog-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.prog-r{display:flex;align-items:center;gap:8px}
+.prog-l2{font-size:10px;font-family:var(--m);color:var(--t3);width:72px;flex-shrink:0}
+.prog-bar{flex:1;height:4px;background:var(--out);border-radius:var(--r-f);overflow:hidden}
+.prog-fill{height:100%;border-radius:var(--r-f)}
+.prog-count{font-family:var(--m);font-size:10px;width:20px;text-align:right}
+
+/* Export */
+.exp-opts{display:flex;flex-direction:column;gap:7px;margin-bottom:20px}
+.eopt{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--out);border-radius:var(--r-md);cursor:pointer;transition:all 120ms}
+.eopt:hover{border-color:var(--out-s);background:var(--s2)}
+.eico{width:28px;height:28px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;background:var(--s2)}
+.ename{font-size:13px;font-weight:500;color:var(--t2)}
+.esub{font-size:10px;color:var(--t3);margin-top:1px}
+
+/* Handoff moment */
+.hm{background:var(--pr-c);border:1px solid rgba(27,107,74,.2);border-radius:var(--r-md);padding:14px 16px;margin-top:16px}
+.hm-title{font-size:12px;font-weight:600;color:var(--pr);margin-bottom:6px;font-family:var(--m);letter-spacing:.04em}
+.hm-text{font-size:12px;color:var(--t2);line-height:1.65}
+
+/* Share */
+.share-sec{border-top:1px solid var(--out);padding-top:16px;margin-top:4px}
+.share-row{display:flex;gap:6px;margin-top:8px}
+.share-inp{flex:1;background:var(--s2);border:1.5px solid var(--out);border-radius:var(--r-sm);padding:7px 10px;font-size:11px;color:var(--t2);font-family:var(--m);outline:none}
+.share-inp:focus{border-color:var(--pr)}
+.share-btn{padding:7px 12px;background:var(--s3);border:1.5px solid var(--out);border-radius:var(--r-sm);font-size:11px;color:var(--t2);cursor:pointer;transition:all 120ms}
+.share-btn:hover{background:var(--pr-c);border-color:var(--pr);color:var(--pr)}
+.share-hint{font-size:10px;color:var(--t3);margin-top:6px;line-height:1.5}
+
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.main,.side{animation:fu .3s ease both}.side{animation-delay:.08s}
+</style>
+</head>
+<body>
+
+<div class="tb">
+  <div class="tb-l">
+    <div class="logo">N</div>
+    <div class="tb-name">Nexus</div>
+    <div class="tb-sep" style="width:1px;height:18px;background:var(--out)"></div>
+    <div class="badge">Handoff</div>
+    <span style="font-size:12px;color:var(--t3);margin-left:6px">Session complete · Horizon Corp · Dan Quinn · 4 findings · 1 gap</span>
+  </div>
+  <div class="tb-r">
+    <button class="tbtn" onclick="alert('Starting a new session…')">New query</button>
+    <button class="tbtn" onclick="alert('Exporting brief…')">Export brief</button>
+    <button class="tbtn pr" onclick="alert('Share panel opened.')">Share →</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="main">
+
+    <!-- Summary banner -->
+    <div class="banner">
+      <div class="bstat"><div class="bval g">2</div><div class="blbl">High confidence</div></div>
+      <div class="bdiv"></div>
+      <div class="bstat"><div class="bval a">1</div><div class="blbl">Medium</div></div>
+      <div class="bdiv"></div>
+      <div class="bstat"><div class="bval r">1</div><div class="blbl">Needs review</div></div>
+      <div class="bdiv"></div>
+      <div class="bstat"><div class="bval p">1</div><div class="blbl">Gap identified</div></div>
+      <div class="bdiv"></div>
+      <div class="bstat"><div class="bval" style="color:var(--t2)">2</div><div class="blbl">Agents invoked</div></div>
+      <div class="bmeta">Compound query · Routed 0.3s<br>Total session: 1.4s · May 2026</div>
+    </div>
+
+    <!-- High confidence -->
+    <div class="sh"><div class="sh-l">High confidence</div><div class="tier-badge tb-h">Act on these first</div></div>
+    <div class="findings">
+      <div class="fc" id="fc1">
+        <div class="fc-top"><div class="stripe s-h"></div>
+        <div class="fc-body">
+          <div class="fc-hdr"><div class="fc-title">Priya Nair — follow up this week</div><div class="fc-meta"><div class="fc-conf c-h">High</div><div class="fc-agent">Action Recommender</div></div></div>
+          <div class="fc-text">Relationship strength 0.88. Last contact 17 days ago. Champion and primary path to James Okafor. Cadence is healthy — maintain it before the Q2 pilot review.</div>
+          <div class="fc-actions">
+            <button class="fab pr" onclick="act('Draft follow-up to Priya')">Draft follow-up</button>
+            <button class="fab" onclick="act('View Priya contact')">View contact</button>
+            <button class="fab" onclick="act('Schedule meeting with Priya')">Schedule meeting</button>
+            <div class="fdismiss" onclick="dismiss('fc1')">Dismiss ×</div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="fc" id="fc2">
+        <div class="fc-top"><div class="stripe s-h"></div>
+        <div class="fc-body">
+          <div class="fc-hdr"><div class="fc-title">Sarah Mitchell — cadence drifting</div><div class="fc-meta"><div class="fc-conf c-h">High</div><div class="fc-agent">Action Recommender</div></div></div>
+          <div class="fc-text">Relationship strength 0.74. Last contact 45 days ago. Decision authority for final sign-off. Monthly cadence slipping — re-engage before the next budget cycle.</div>
+          <div class="fc-actions">
+            <button class="fab pr" onclick="act('Draft re-engagement for Sarah')">Draft re-engagement</button>
+            <button class="fab" onclick="act('View Sarah contact')">View contact</button>
+            <div class="fdismiss" onclick="dismiss('fc2')">Dismiss ×</div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- Medium -->
+    <div class="sh"><div class="sh-l">Medium confidence</div><div class="tier-badge tb-m">Review before acting</div></div>
+    <div class="findings">
+      <div class="fc" id="fc3">
+        <div class="fc-top"><div class="stripe s-m"></div>
+        <div class="fc-body">
+          <div class="fc-hdr"><div class="fc-title">Draft — Priya Nair follow-up</div><div class="fc-meta"><div class="fc-conf c-m">Review before sending</div><div class="fc-agent">Communication Drafter</div></div></div>
+          <div class="fc-text" style="font-style:italic;color:var(--t3)">"Hi Priya — following up on our last conversation. I wanted to check in on the Q2 pilot scope and see if there's anything I can help move forward before your next internal review. Happy to jump on a quick call this week if useful."</div>
+          <div class="hjf"><div class="hji">△</div><div>Generated from relationship context. Review and personalise before sending — agent does not know recent offline context or tone preferences.</div></div>
+          <div class="fc-actions">
+            <button class="fab pr" onclick="act('Edit draft')">Edit draft</button>
+            <button class="fab" onclick="act('Save to Gmail')">Save to Gmail</button>
+            <button class="fab" onclick="act('Different tone')">Different tone</button>
+            <div class="fdismiss" onclick="dismiss('fc3')">Dismiss ×</div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- Needs review -->
+    <div class="sh"><div class="sh-l">Needs your review</div><div class="tier-badge tb-l2">Human judgment required</div></div>
+    <div class="findings">
+      <div class="fc" id="fc4">
+        <div class="fc-top"><div class="stripe s-l"></div>
+        <div class="fc-body">
+          <div class="fc-hdr"><div class="fc-title">Tom Brennan — blocker risk escalating</div><div class="fc-meta"><div class="fc-conf c-l">Low — act with caution</div><div class="fc-agent">Action Recommender</div></div></div>
+          <div class="fc-text">No contact in >120 days. Strength 0.12. Rival Vendor VP with Blocker role. Counter-influence to James Okafor is a risk, but insufficient data on current stance or intent.</div>
+          <div class="hjf"><div class="hji">△</div><div>Agent cannot assess Tom's current intent. Any re-engagement requires human judgment on timing and framing. Do not send outreach based on this finding alone.</div></div>
+          <div class="fc-actions">
+            <button class="fab" onclick="act('Research Tom recent activity')">Research recent activity</button>
+            <button class="fab" onclick="act('Ask Nexus for strategy on Tom')">Ask Nexus for strategy</button>
+            <div class="fdismiss" onclick="dismiss('fc4')">Dismiss ×</div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- Gap log -->
+    <div class="sh"><div class="sh-l">Gap log</div><div class="tier-badge tb-g">Insufficient evidence</div></div>
+    <div class="gap-log">
+      <div class="gap-log-l">Research gaps identified this session</div>
+      <div class="gap-item"><div class="gap-n">G1</div><div>No interaction data for Elena Vasquez in 90+ days. Influence path to Sarah Mitchell weakening. Recommend a touchpoint before the gap widens.</div></div>
+    </div>
+
+    <!-- Can't help -->
+    <div class="sh"><div class="sh-l">Outside agent scope</div><div class="tier-badge tb-n">Not actionable by Nexus</div></div>
+    <div class="cant">
+      <div class="cant-icon">⊘</div>
+      <div>
+        <div class="cant-title">External competitive intelligence — Tom Brennan / Rival Vendor</div>
+        <div class="cant-text">Nexus does not have access to external competitor data or any information about Rival Vendor's current engagement with Horizon Corp.</div>
+        <div class="cant-next">Suggested next steps:</div>
+        <div class="cant-step">Check LinkedIn for recent activity from Tom Brennan or Rival Vendor</div>
+        <div class="cant-step">Ask your internal network if Rival Vendor has been active at Horizon Corp</div>
+        <div class="cant-step">Brief your manager before any outreach to this contact</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Right panel -->
+  <div class="side">
+    <div class="pl">Session brief</div>
+
+    <div class="prog-rows">
+      <div class="prog-r"><div class="prog-l2">High conf</div><div class="prog-bar"><div class="prog-fill" style="width:100%;background:var(--pr)"></div></div><div class="prog-count" style="color:var(--pr)">2</div></div>
+      <div class="prog-r"><div class="prog-l2">Medium</div><div class="prog-bar"><div class="prog-fill" style="width:50%;background:var(--wn)"></div></div><div class="prog-count" style="color:var(--wn)">1</div></div>
+      <div class="prog-r"><div class="prog-l2">Low / Review</div><div class="prog-bar"><div class="prog-fill" style="width:50%;background:var(--er)"></div></div><div class="prog-count" style="color:var(--er)">1</div></div>
+      <div class="prog-r"><div class="prog-l2">Gaps</div><div class="prog-bar"><div class="prog-fill" style="width:25%;background:var(--pu)"></div></div><div class="prog-count" style="color:var(--pu)">1</div></div>
+    </div>
+
+    <div class="pl" style="margin-top:4px">Export brief</div>
+    <div class="exp-opts">
+      <div class="eopt" onclick="alert('Saving drafts to Gmail…')"><div class="eico">📧</div><div><div class="ename">Gmail draft</div><div class="esub">Save outreach drafts to Gmail</div></div></div>
+      <div class="eopt" onclick="alert('Creating Google Doc…')"><div class="eico">📄</div><div><div class="ename">Google Doc</div><div class="esub">Full brief as a shareable doc</div></div></div>
+      <div class="eopt" onclick="alert('Sharing to Slack…')"><div class="eico">💬</div><div><div class="ename">Slack summary</div><div class="esub">Share findings with your team</div></div></div>
+      <div class="eopt" onclick="alert('Copied to clipboard.')"><div class="eico">📋</div><div><div class="ename">Copy to clipboard</div><div class="esub">Paste anywhere</div></div></div>
+    </div>
+
+    <div class="share-sec">
+      <div class="pl">Share with team</div>
+      <div class="share-row"><input class="share-inp" placeholder="Email or Slack handle" id="si"><div class="share-btn" onclick="share()">Send</div></div>
+      <div class="share-hint">Shared briefs include findings and gap log. Drafts are not included unless explicitly exported.</div>
+    </div>
+
+    <div class="hm">
+      <div class="hm-title">Nexus handoff complete</div>
+      <div class="hm-text">Every finding above is a starting point — not a conclusion. The judgment, the decisions, and the relationships are yours.</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function dismiss(id){const e=document.getElementById(id);if(e){e.style.opacity='.3';setTimeout(()=>e.style.display='none',400);}}
+function act(l){alert('Action: '+l);}
+function share(){const v=document.getElementById('si').value;if(v)alert('Brief shared with: '+v);else alert('Enter an email or Slack handle.');}
+</script>
+</body>
+</html>

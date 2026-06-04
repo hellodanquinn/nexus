@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nexus — Setup</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pr:#1B6B4A;--pr-c:#AAEDC8;--on-pr-c:#002113;
+  --er:#BA1A1A;--er-c:#FFDAD6;
+  --wn:#7A5200;--wn-c:#FFDEA8;
+  --surf:#F4F9F6;--s1:#FFFFFF;--s2:#EDF4EF;--s3:#E0EDE3;
+  --out:#BDC9C0;--out-s:#6F7F74;
+  --t1:#181D19;--t2:#3F4D43;--t3:#6F7F74;
+  --r-xs:4px;--r-sm:8px;--r-md:12px;--r-lg:16px;--r-f:999px;
+  --sh1:0 1px 3px rgba(0,0,0,.07),0 0 0 1px var(--out);
+  --f:'DM Sans',sans-serif;--m:'DM Mono',monospace;
+}
+body{background:var(--surf);color:var(--t1);font-family:var(--f);font-size:14px;min-height:100vh;line-height:1.5}
+
+/* Topbar */
+.tb{height:56px;background:var(--s1);border-bottom:1px solid var(--out);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:20;box-shadow:0 1px 0 var(--out)}
+.tb-l{display:flex;align-items:center;gap:12px}
+.logo{width:30px;height:30px;border-radius:9px;background:var(--pr);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;letter-spacing:-.5px;flex-shrink:0}
+.tb-name{font-size:16px;font-weight:600;color:var(--t1);letter-spacing:-.4px}
+.tb-sep{width:1px;height:20px;background:var(--out)}
+.tb-ctx{font-size:12px;color:var(--t3);font-family:var(--m);letter-spacing:.04em}
+.steps{display:flex;align-items:center;gap:0}
+.step{display:flex;align-items:center;gap:6px;padding:0 12px;font-size:11px;font-family:var(--m);color:var(--t3)}
+.step-dot{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--out);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--t3)}
+.step-dot.done{background:var(--pr);border-color:var(--pr);color:#fff}
+.step-dot.active{background:var(--pr);border-color:var(--pr);color:#fff;box-shadow:0 0 0 3px var(--pr-c)}
+.step-line{width:20px;height:1px;background:var(--out)}
+.tb-r{display:flex;gap:8px}
+.btn-o{padding:7px 18px;border:1.5px solid var(--out);border-radius:var(--r-f);font-family:var(--f);font-size:13px;font-weight:500;color:var(--t2);background:transparent;cursor:pointer;transition:all 150ms}
+.btn-o:hover{border-color:var(--out-s);background:var(--s2)}
+.btn-p{padding:7px 20px;border:none;border-radius:var(--r-f);font-family:var(--f);font-size:13px;font-weight:600;color:#fff;background:var(--pr);cursor:pointer;transition:opacity 150ms;box-shadow:0 1px 4px rgba(27,107,74,.3)}
+.btn-p:hover{opacity:.88}
+
+/* Layout */
+.wrap{display:grid;grid-template-columns:216px 1fr 280px;min-height:calc(100vh - 56px)}
+
+/* Sidenav */
+.nav{background:var(--s1);border-right:1px solid var(--out);padding:20px 0}
+.nav-sec{font-family:var(--m);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);padding:0 16px 8px}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:13px;font-weight:500;color:var(--t3);cursor:pointer;border-left:3px solid transparent;transition:all 120ms}
+.ni:hover{background:var(--s2);color:var(--t2)}
+.ni.done{color:var(--t2)}
+.ni.done::after{content:'✓';margin-left:auto;color:var(--pr);font-size:11px}
+.ni.active{background:var(--s2);border-left-color:var(--pr);color:var(--pr)}
+.ni-n{font-family:var(--m);font-size:10px;color:var(--out-s);width:16px}
+.ni.active .ni-n{color:var(--pr)}
+.ndiv{height:1px;background:var(--out);margin:12px 16px}
+.nav-warn{font-family:var(--m);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--wn);padding:10px 16px 4px;opacity:.9}
+.nav-warn-b{font-size:11px;color:var(--t3);padding:0 16px 8px;line-height:1.6}
+
+/* Main */
+.main{padding:40px 48px;overflow-y:auto}
+.fh{margin-bottom:32px}
+.fh h1{font-size:22px;font-weight:600;letter-spacing:-.5px;margin-bottom:6px}
+.fh p{font-size:14px;color:var(--t2);line-height:1.65;max-width:520px}
+.fs{margin-bottom:32px}
+.sl{font-family:var(--m);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.sl::after{content:'';flex:1;height:1px;background:var(--out)}
+.fld{margin-bottom:18px}
+.fl{font-size:12px;font-weight:500;color:var(--t2);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.freq{font-family:var(--m);font-size:9px;color:var(--pr);background:var(--pr-c);padding:1px 6px;border-radius:var(--r-xs)}
+.fh2{font-size:11px;color:var(--t3);margin-top:5px;line-height:1.5}
+input,textarea,select{width:100%;background:var(--s1);border:1.5px solid var(--out);border-radius:var(--r-sm);color:var(--t1);font-family:var(--f);font-size:13px;padding:10px 14px;outline:none;transition:border-color 200ms,box-shadow 200ms;appearance:none}
+input:focus,textarea:focus{border-color:var(--pr);box-shadow:0 0 0 3px rgba(27,107,74,.1)}
+textarea{resize:vertical;min-height:76px;line-height:1.6}
+::placeholder{color:var(--t3)}
+
+/* Chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.chip{display:flex;align-items:center;gap:6px;padding:6px 13px;border:1.5px solid var(--out);border-radius:var(--r-f);font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;transition:all 150ms;background:var(--s1);user-select:none}
+.chip:hover{border-color:var(--out-s);background:var(--s2)}
+.chip.on{border-color:var(--pr);background:var(--pr-c);color:var(--on-pr-c)}
+.cdot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.5}
+
+/* Depth */
+.dg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.dc{border:1.5px solid var(--out);border-radius:var(--r-md);padding:14px 16px;cursor:pointer;transition:all 150ms;background:var(--s1)}
+.dc:hover{border-color:var(--out-s);background:var(--s2)}
+.dc.on{border-color:var(--pr);background:var(--s3);box-shadow:0 0 0 1px var(--pr)}
+.dt{font-size:13px;font-weight:600;margin-bottom:4px}
+.dc.on .dt{color:var(--pr)}
+.dd{font-size:11px;color:var(--t3);line-height:1.5}
+
+/* Capability notice */
+.cap{background:var(--wn-c);border:1px solid rgba(122,82,0,.2);border-radius:var(--r-md);padding:16px 18px;display:flex;gap:12px}
+.cap-i{font-size:15px;flex-shrink:0;margin-top:1px}
+.cap-t{font-size:12px;color:var(--t2);line-height:1.65}
+.cap-t strong{color:var(--wn);font-weight:600}
+
+/* Right panel */
+.panel{background:var(--s1);border-left:1px solid var(--out);padding:24px 20px;overflow-y:auto}
+.pl{font-family:var(--m);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:16px}
+
+/* Agent card */
+.acard{background:var(--surf);border:1px solid var(--out);border-radius:var(--r-lg);overflow:hidden;margin-bottom:20px;box-shadow:var(--sh1)}
+.acard-hdr{background:var(--s3);padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--out)}
+.av{width:36px;height:36px;border-radius:var(--r-sm);background:var(--pr);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0}
+.acard-n{font-size:14px;font-weight:600}
+.acard-s{font-size:11px;color:var(--t3);margin-top:1px}
+.acard-b{padding:12px 16px}
+.pr{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--out);gap:12px;font-size:12px}
+.pr:last-child{border-bottom:none}
+.pk{font-family:var(--m);font-size:10px;color:var(--t3);flex-shrink:0}
+.pv{color:var(--t2);text-align:right}
+.pv.set{color:var(--t1);font-weight:500}
+.stag{display:inline-block;font-family:var(--m);font-size:9px;padding:2px 7px;border-radius:var(--r-xs);border:1px solid var(--out);color:var(--t3);margin:1px}
+.stag.on{border-color:var(--pr);color:var(--pr);background:var(--pr-c)}
+
+/* RAI */
+.rai-b{background:var(--s2);border-radius:var(--r-md);padding:12px 14px;border:1px solid var(--out)}
+.ri{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:11px;color:var(--t3);line-height:1.5}
+.rc{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--out);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;margin-top:1px;transition:all 200ms}
+.rc.ok{background:var(--pr-c);border-color:var(--pr);color:var(--pr)}
+.rc.warn{background:var(--wn-c);border-color:var(--wn);color:var(--wn)}
+
+/* Progress */
+.prog-b{height:3px;background:var(--out);border-radius:var(--r-f);margin-bottom:4px;overflow:hidden}
+.prog-f{height:100%;width:50%;background:var(--pr);border-radius:var(--r-f);transition:width 400ms cubic-bezier(.2,0,0,1)}
+.prog-l{font-family:var(--m);font-size:9px;color:var(--t3);margin-bottom:16px}
+
+/* Footer */
+.foot{display:flex;align-items:center;justify-content:space-between;padding:14px 48px;border-top:1px solid var(--out);background:var(--s1);position:sticky;bottom:0}
+.foot-h{font-size:12px;color:var(--t3)}
+.foot-a{display:flex;gap:10px}
+
+/* Proc bar */
+.proc{display:none;align-items:center;gap:10px;padding:8px 48px;background:var(--pr-c);border-bottom:1px solid rgba(27,107,74,.2);font-size:12px;color:var(--pr);font-family:var(--m)}
+.proc.show{display:flex}
+.pd{width:6px;height:6px;border-radius:50%;background:var(--pr);animation:pu 1s ease-in-out infinite}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.main,.panel{animation:fu .3s ease both}.panel{animation-delay:.08s}
+</style>
+</head>
+<body>
+
+<div class="tb">
+  <div class="tb-l">
+    <div class="logo">N</div>
+    <div class="tb-name">Nexus</div>
+    <div class="tb-sep"></div>
+    <div class="tb-ctx">agent-setup</div>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="step-dot done">✓</div><span>Context</span></div>
+    <div class="step-line"></div>
+    <div class="step"><div class="step-dot active">2</div><span>Scope</span></div>
+    <div class="step-line"></div>
+    <div class="step"><div class="step-dot">3</div><span>Preview</span></div>
+    <div class="step-line"></div>
+    <div class="step"><div class="step-dot">4</div><span>Activate</span></div>
+  </div>
+  <div class="tb-r">
+    <button class="btn-o" onclick="save()">Save & exit</button>
+    <button class="btn-p" onclick="next()">Continue →</button>
+  </div>
+</div>
+
+<div class="proc" id="proc"><div class="pd"></div><span id="pt">Validating…</span></div>
+
+<div class="wrap">
+  <nav class="nav">
+    <div class="nav-sec">Configuration</div>
+    <div class="ni done"><span class="ni-n">01</span>Account context</div>
+    <div class="ni active"><span class="ni-n">02</span>Agent scope</div>
+    <div class="ni"><span class="ni-n">03</span>Principles</div>
+    <div class="ni"><span class="ni-n">04</span>Depth</div>
+    <div class="ndiv"></div>
+    <div class="nav-sec">Lifecycle</div>
+    <div class="ni"><span class="ni-n">05</span>Monitor</div>
+    <div class="ni"><span class="ni-n">06</span>Manage</div>
+    <div class="ni"><span class="ni-n">07</span>Engage</div>
+    <div class="ndiv"></div>
+    <div class="nav-warn">Responsible AI</div>
+    <div class="nav-warn-b">This agent accesses contact data. Review the capability notice before activating.</div>
+  </nav>
+
+  <main class="main">
+    <div class="fh">
+      <h1>Agent scope & configuration</h1>
+      <p>Define what Nexus can access, what it can act on, and the limits of its autonomy. These settings determine what the agent will and will not do on your behalf.</p>
+    </div>
+
+    <div class="fs">
+      <div class="sl">Data access</div>
+      <div class="fld">
+        <div class="fl">Account name <span class="freq">required</span></div>
+        <input type="text" id="acc" value="Horizon Corp" oninput="up()">
+      </div>
+      <div class="fld">
+        <div class="fl">Relationship owner <span class="freq">required</span></div>
+        <input type="text" id="own" value="Dan Quinn" oninput="up()">
+        <div class="fh2">Nexus will scope all queries to this owner's contact network.</div>
+      </div>
+      <div class="fld">
+        <div class="fl">User goal</div>
+        <textarea id="goal" oninput="up()">Advance deal — confirm Q2 pilot scope</textarea>
+        <div class="fh2">A clear goal helps Nexus prioritise which relationships and actions matter most.</div>
+      </div>
+    </div>
+
+    <div class="fs">
+      <div class="sl">Design principles</div>
+      <div class="chips" id="ch">
+        <div class="chip on" onclick="tc(this)"><div class="cdot"></div>Set expectations</div>
+        <div class="chip on" onclick="tc(this)"><div class="cdot"></div>Transparency</div>
+        <div class="chip on" onclick="tc(this)"><div class="cdot"></div>User in control</div>
+        <div class="chip" onclick="tc(this)"><div class="cdot"></div>Avoid overreliance</div>
+        <div class="chip" onclick="tc(this)"><div class="cdot"></div>Build trust</div>
+        <div class="chip" onclick="tc(this)"><div class="cdot"></div>Fairness & bias</div>
+        <div class="chip" onclick="tc(this)"><div class="cdot"></div>Privacy by design</div>
+        <div class="chip" onclick="tc(this)"><div class="cdot"></div>Accountability</div>
+      </div>
+      <div class="fh2" style="margin-top:10px">Selected principles are applied as evaluation criteria when Nexus surfaces findings.</div>
+    </div>
+
+    <div class="fs">
+      <div class="sl">Analysis depth</div>
+      <div class="dg">
+        <div class="dc" onclick="sd(this)"><div class="dt">Quick scan</div><div class="dd">Surface-level flags. Fastest response.</div></div>
+        <div class="dc on" onclick="sd(this)"><div class="dt">Standard</div><div class="dd">Balanced depth. Recommended for most queries.</div></div>
+        <div class="dc" onclick="sd(this)"><div class="dt">Deep analysis</div><div class="dd">Full confidence scoring. Slower response.</div></div>
+      </div>
+    </div>
+
+    <div class="fs">
+      <div class="sl">Capability notice</div>
+      <div class="cap">
+        <div class="cap-i">⚠</div>
+        <div class="cap-t">
+          <strong>What Nexus can do:</strong> analyse relationship strength, flag conflicts and gaps, recommend next actions, and draft outreach based on your contact network.<br><br>
+          <strong>What it cannot do:</strong> access contacts outside this account, send messages without your review, or make commitments on your behalf.<br><br>
+          Nexus operates with your explicit approval at every step. You can pause, redirect, or stop it at any time.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="panel">
+    <div class="pl">Agent summary</div>
+    <div class="prog-b"><div class="prog-f"></div></div>
+    <div class="prog-l">Step 2 of 4 — Scope</div>
+
+    <div class="acard">
+      <div class="acard-hdr">
+        <div class="av">N</div>
+        <div><div class="acard-n">Nexus</div><div class="acard-s">Multi-agent · Orchestrator</div></div>
+      </div>
+      <div class="acard-b">
+        <div class="pr"><div class="pk">account</div><div class="pv set" id="pA">Horizon Corp</div></div>
+        <div class="pr"><div class="pk">owner</div><div class="pv set" id="pO">Dan Quinn</div></div>
+        <div class="pr"><div class="pk">goal</div><div class="pv set" id="pG">Advance deal — Q2</div></div>
+        <div class="pr"><div class="pk">depth</div><div class="pv set" id="pD">Standard</div></div>
+        <div class="pr">
+          <div class="pk">agents</div>
+          <div class="pv"><span class="stag on">Orchestrator</span><span class="stag on">Analyst</span><span class="stag on">Recommender</span><span class="stag">Enrichment</span><span class="stag">Drafter</span></div>
+        </div>
+        <div class="pr"><div class="pk">principles</div><div class="pv" id="pP"><span class="stag on">Expectations</span><span class="stag on">Transparency</span><span class="stag on">Control</span></div></div>
+      </div>
+    </div>
+
+    <div class="pl">Responsible AI</div>
+    <div class="rai-b">
+      <div class="ri"><div class="rc ok">✓</div>Capability limits explained upfront</div>
+      <div class="ri"><div class="rc ok">✓</div>Data scope defined and bounded</div>
+      <div class="ri"><div class="rc ok" id="rP">✓</div>Principles selected (min. 3)</div>
+      <div class="ri"><div class="rc" id="rG"></div>User goal defined</div>
+      <div class="ri"><div class="rc ok">✓</div>Stop / override always available</div>
+    </div>
+  </aside>
+</div>
+
+<div class="foot">
+  <div class="foot-h">Step 2 of 4 — Changes saved automatically</div>
+  <div class="foot-a">
+    <button class="btn-o" onclick="save()">Save & exit</button>
+    <button class="btn-p" onclick="next()">Continue to preview →</button>
+  </div>
+</div>
+
+<script>
+const sm={'Set expectations':'Expectations','Transparency':'Transparency','User in control':'Control','Avoid overreliance':'Overreliance','Build trust':'Trust','Fairness & bias':'Fairness','Privacy by design':'Privacy','Accountability':'Accountability'};
+function tc(el){el.classList.toggle('on');up();}
+function sd(el){document.querySelectorAll('.dc').forEach(c=>c.classList.remove('on'));el.classList.add('on');document.getElementById('pD').textContent=el.querySelector('.dt').textContent;up();}
+function up(){
+  const a=document.getElementById('acc').value||'—',o=document.getElementById('own').value||'—',g=document.getElementById('goal').value||'—';
+  const set=(id,v)=>{const e=document.getElementById(id);e.textContent=v;e.className='pv'+(v!=='—'?' set':'')};
+  set('pA',a);set('pO',o);set('pG',g.length>26?g.slice(0,26)+'…':g);
+  const sel=[...document.querySelectorAll('#ch .chip.on')];
+  const pp=document.getElementById('pP');pp.innerHTML='';
+  sel.forEach(c=>{const s=document.createElement('span');s.className='stag on';s.textContent=sm[c.textContent.trim()]||c.textContent.trim();pp.appendChild(s);});
+  const rP=document.getElementById('rP');rP.className=sel.length>=3?'rc ok':'rc';rP.textContent=sel.length>=3?'✓':'';
+  const rG=document.getElementById('rG');const gv=document.getElementById('goal').value.trim();rG.className=gv.length>5?'rc ok':'rc';rG.textContent=gv.length>5?'✓':'';
+}
+function next(){
+  const b=document.getElementById('proc'),t=document.getElementById('pt');b.classList.add('show');
+  const s=['Validating configuration…','Binding account context…','Initialising agent scope…','Ready — loading preview'];
+  let i=0;const x=setInterval(()=>{t.textContent=s[i];i++;if(i>=s.length){clearInterval(x);setTimeout(()=>b.classList.remove('show'),1000);}},700);
+}
+function save(){const b=document.getElementById('proc'),t=document.getElementById('pt');t.textContent='Configuration saved.';b.classList.add('show');setTimeout(()=>b.classList.remove('show'),1800);}
+up();
+</script>
+</body>
+</html>

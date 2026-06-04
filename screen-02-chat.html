@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nexus — Live Chat</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pr:#1B6B4A;--pr-c:#AAEDC8;--on-pr-c:#002113;
+  --er:#BA1A1A;--er-c:#FFDAD6;
+  --wn:#7A5200;--wn-c:#FFDEA8;
+  --pu:#3A6473;--pu-c:#BDE9FA;
+  --bl:#1565C0;--bl-c:#BBDEFB;
+  --surf:#F4F9F6;--s1:#FFFFFF;--s2:#EDF4EF;--s3:#E0EDE3;
+  --out:#BDC9C0;--out-s:#6F7F74;
+  --t1:#181D19;--t2:#3F4D43;--t3:#6F7F74;
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-f:999px;
+  --sh1:0 1px 3px rgba(0,0,0,.07),0 0 0 1px var(--out);
+  --f:'DM Sans',sans-serif;--m:'DM Mono',monospace;
+}
+body{background:var(--surf);color:var(--t1);font-family:var(--f);font-size:14px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── API Key gate ─────────────────────────────────────────────────────────── */
+.gate{position:fixed;inset:0;background:rgba(244,249,246,.97);backdrop-filter:blur(8px);z-index:100;display:flex;align-items:center;justify-content:center;padding:24px}
+.gate-card{background:var(--s1);border:1.5px solid var(--out);border-radius:20px;padding:40px 44px;max-width:480px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.08)}
+.gate-logo{width:40px;height:40px;border-radius:11px;background:var(--pr);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;margin-bottom:20px}
+.gate-title{font-size:20px;font-weight:600;letter-spacing:-.4px;margin-bottom:6px}
+.gate-sub{font-size:13px;color:var(--t2);line-height:1.65;margin-bottom:24px}
+.gate-label{font-size:12px;font-weight:500;color:var(--t2);margin-bottom:6px;display:block}
+.gate-input{width:100%;background:var(--s2);border:1.5px solid var(--out);border-radius:var(--r-sm);padding:11px 14px;font-family:var(--m);font-size:13px;color:var(--t1);outline:none;transition:border-color 200ms;margin-bottom:8px}
+.gate-input:focus{border-color:var(--pr);background:var(--s1)}
+.gate-hint{font-size:11px;color:var(--t3);margin-bottom:20px;line-height:1.55}
+.gate-hint a{color:var(--pr);text-decoration:none}
+.gate-hint a:hover{text-decoration:underline}
+.gate-btn{width:100%;padding:12px;border:none;border-radius:var(--r-f);background:var(--pr);color:#fff;font-family:var(--f);font-size:14px;font-weight:600;cursor:pointer;transition:opacity 150ms;box-shadow:0 2px 8px rgba(27,107,74,.25)}
+.gate-btn:hover{opacity:.88}
+.gate-err{font-size:11px;color:var(--er);margin-top:8px;display:none}
+.gate-skip{text-align:center;margin-top:14px;font-size:12px;color:var(--t3)}
+.gate-skip a{color:var(--pr);cursor:pointer;text-decoration:none}
+.gate.hidden{display:none}
+
+/* ── Topbar ───────────────────────────────────────────────────────────────── */
+.tb{height:56px;background:var(--s1);border-bottom:1px solid var(--out);display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0}
+.tb-l{display:flex;align-items:center;gap:10px}
+.logo{width:28px;height:28px;border-radius:8px;background:var(--pr);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0}
+.tb-name{font-size:15px;font-weight:600;letter-spacing:-.3px}
+.tb-sep{width:1px;height:18px;background:var(--out)}
+.status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t3)}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--pr);flex-shrink:0}
+.sdot.thinking{background:var(--wn);animation:pu 1s ease-in-out infinite}
+.sdot.error{background:var(--er)}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.3}}
+.tb-r{display:flex;gap:6px;align-items:center}
+.key-btn{padding:4px 10px;border:1.5px solid var(--out);border-radius:var(--r-f);font-size:10px;font-family:var(--m);color:var(--t3);background:transparent;cursor:pointer;transition:all 120ms}
+.key-btn:hover{border-color:var(--pr);color:var(--pr)}
+.tbtn{padding:5px 12px;border:1.5px solid var(--out);border-radius:var(--r-f);font-size:11px;font-family:var(--m);color:var(--t3);background:transparent;cursor:pointer;transition:all 120ms}
+.tbtn:hover{border-color:var(--out-s);color:var(--t2)}
+.tbtn.stop{border-color:rgba(186,26,26,.25);color:var(--er)}
+.tbtn.stop:hover{background:var(--er-c)}
+
+/* ── Layout ───────────────────────────────────────────────────────────────── */
+.layout{flex:1;display:grid;grid-template-columns:1fr 272px;overflow:hidden}
+
+/* ── Suggestions ──────────────────────────────────────────────────────────── */
+.sugg{padding:10px 20px;border-bottom:1px solid var(--out);background:var(--s1);flex-shrink:0}
+.sugg-l{font-family:var(--m);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--t3);margin-bottom:7px}
+.sugg-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sc{padding:5px 12px;border:1.5px solid var(--out);border-radius:var(--r-f);font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;transition:all 120ms;background:var(--s1);white-space:nowrap}
+.sc:hover{border-color:var(--pr);color:var(--pr);background:var(--pr-c)}
+
+/* ── Thread ───────────────────────────────────────────────────────────────── */
+.chat-col{display:flex;flex-direction:column;overflow:hidden}
+.thread{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:18px}
+
+/* Messages */
+.msg-u{display:flex;justify-content:flex-end;animation:fu .2s ease both}
+.ub{background:var(--pr);color:#fff;border-radius:18px 18px 4px 18px;padding:11px 15px;max-width:65%;font-size:14px;line-height:1.6;box-shadow:0 2px 8px rgba(27,107,74,.2)}
+.msg-thinking{display:flex;align-items:center;gap:8px;animation:fu .2s ease both}
+.t-av{width:24px;height:24px;border-radius:6px;background:var(--pr);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px;flex-shrink:0}
+.t-dots{display:flex;gap:4px;align-items:center;padding:9px 13px;background:var(--s1);border:1px solid var(--out);border-radius:var(--r-lg);box-shadow:var(--sh1)}
+.td{width:6px;height:6px;border-radius:50%;background:var(--out-s);animation:td 1.2s ease-in-out infinite}
+.td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,60%,100%{transform:scale(1);opacity:.4}30%{transform:scale(1.3);opacity:1}}
+
+.msg-a{display:flex;flex-direction:column;gap:8px;animation:fu .25s ease both}
+.a-hdr{display:flex;align-items:center;gap:7px}
+.a-av{width:24px;height:24px;border-radius:6px;background:var(--pr);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px;flex-shrink:0}
+.a-lbl{font-size:11px;font-family:var(--m);color:var(--t3)}
+.a-lat{font-size:10px;font-family:var(--m);color:var(--out-s);margin-left:auto}
+
+/* Reasoning chain */
+.chain{background:var(--s1);border:1px solid var(--out);border-radius:var(--r-md);overflow:hidden;cursor:pointer;box-shadow:var(--sh1)}
+.chain-hdr{display:flex;align-items:center;gap:7px;padding:9px 13px;font-size:12px;color:var(--t3);font-family:var(--m);user-select:none;transition:background 120ms}
+.chain-hdr:hover{background:var(--s2)}
+.chain-arr{font-size:10px;transition:transform 200ms;display:inline-block}
+.chain-arr.open{transform:rotate(90deg)}
+.chain-body{display:none;border-top:1px solid var(--out)}
+.chain-body.show{display:block}
+.cs{display:flex;align-items:flex-start;gap:9px;padding:8px 13px;border-bottom:1px solid var(--out);font-size:12px;color:var(--t2);line-height:1.5}
+.cs:last-child{border-bottom:none}
+.cs-n{font-family:var(--m);font-size:10px;color:var(--t3);width:16px;flex-shrink:0;margin-top:1px}
+.cs-t{flex:1}
+.cs-tag{font-family:var(--m);font-size:9px;padding:2px 6px;border-radius:var(--r-sm);margin-left:6px;flex-shrink:0;white-space:nowrap}
+.tag-ROUTE{background:var(--bl-c);color:var(--bl)}
+.tag-DATA{background:var(--pu-c);color:var(--pu)}
+.tag-SCORE{background:var(--pr-c);color:var(--pr)}
+.tag-FLAG{background:var(--wn-c);color:var(--wn)}
+.tag-DRAFT{background:var(--s3);color:var(--t2)}
+
+/* Finding cards */
+.rcard{background:var(--s1);border:1px solid var(--out);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh1)}
+.rcard-hdr{padding:11px 15px;border-bottom:1px solid var(--out);display:flex;align-items:center;justify-content:space-between;background:var(--s2)}
+.rcard-title{font-size:13px;font-weight:600}
+.conf-w{display:flex;align-items:center;gap:5px}
+.conf-bar{width:44px;height:3px;background:var(--out);border-radius:var(--r-f);overflow:hidden}
+.conf-fill{height:100%;border-radius:var(--r-f)}
+.conf-lbl{font-family:var(--m);font-size:10px;color:var(--t3)}
+
+.finding{display:flex;gap:10px;padding:11px 15px;border-bottom:1px solid var(--out)}
+.finding:last-child{border-bottom:none}
+.fbar{width:3px;border-radius:2px;flex-shrink:0;align-self:stretch;min-height:16px}
+.bar-High{background:var(--pr)}.bar-Medium{background:var(--wn)}.bar-Low{background:var(--er)}
+.fbody{flex:1;min-width:0}
+.flbl{font-size:10px;font-family:var(--m);color:var(--t3);margin-bottom:3px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.ftag{font-family:var(--m);font-size:9px;padding:2px 6px;border-radius:var(--r-sm)}
+.ftag-High{background:var(--pr-c);color:var(--pr)}.ftag-Medium{background:var(--wn-c);color:var(--wn)}.ftag-Low{background:var(--er-c);color:var(--er)}
+.fa{font-size:10px;font-family:var(--m);color:var(--t3)}
+.ftext{font-size:13px;line-height:1.65;margin-bottom:7px;word-wrap:break-word}
+.fc-acts{display:flex;gap:6px;flex-wrap:wrap}
+.fab{padding:5px 11px;border-radius:var(--r-f);font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--out);background:var(--s1);color:var(--t2);font-family:var(--f);transition:all 120ms}
+.fab:hover{border-color:var(--out-s);background:var(--s2)}
+.fab.pr{background:var(--pr);border-color:var(--pr);color:#fff;font-weight:600}
+.fab.pr:hover{opacity:.88}
+
+.hjf{display:flex;gap:7px;padding:7px 9px;background:var(--wn-c);border:1px solid rgba(122,82,0,.2);border-radius:var(--r-sm);font-size:11px;color:var(--wn);line-height:1.5;margin-bottom:7px}
+.hji{font-family:var(--m);font-size:10px;flex-shrink:0;margin-top:1px}
+
+/* Draft */
+.draft-card{background:var(--s1);border:1px solid var(--out);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh1)}
+.draft-hdr{padding:10px 15px;background:var(--s2);border-bottom:1px solid var(--out);display:flex;align-items:center;justify-content:space-between}
+.draft-subj{font-size:12px;font-weight:600;color:var(--t2)}
+.draft-tag{font-family:var(--m);font-size:9px;padding:2px 7px;border-radius:var(--r-sm);background:var(--wn-c);color:var(--wn)}
+.draft-body-text{font-size:13px;color:var(--t2);line-height:1.65;font-style:italic;margin:11px 15px;padding:9px 11px;background:var(--s2);border-radius:var(--r-sm)}
+.draft-hjf{margin:0 15px 9px;display:flex;gap:7px;padding:7px 9px;background:var(--wn-c);border:1px solid rgba(122,82,0,.2);border-radius:var(--r-sm);font-size:11px;color:var(--wn);line-height:1.5}
+.draft-acts{display:flex;gap:7px;flex-wrap:wrap;padding:10px 15px;background:var(--s2);border-top:1px solid var(--out)}
+
+/* Gap / error */
+.gap-box{background:var(--pu-c);border:1px solid rgba(58,100,115,.2);border-radius:var(--r-md);padding:11px 13px}
+.gap-lbl{font-family:var(--m);font-size:9px;letter-spacing:.12em;color:var(--pu);text-transform:uppercase;margin-bottom:7px}
+.gap-item{font-size:12px;color:var(--t2);padding:3px 0;border-bottom:1px solid rgba(58,100,115,.15);line-height:1.5}
+.gap-item:last-child{border-bottom:none}
+.cant-box{background:var(--s2);border:1.5px dashed var(--out-s);border-radius:var(--r-md);padding:13px 15px;font-size:12px;color:var(--t2);line-height:1.65}
+.cant-title{font-weight:600;margin-bottom:5px}
+.err-box{background:var(--er-c);border:1px solid rgba(186,26,26,.2);border-radius:var(--r-md);padding:11px 13px;font-size:12px;color:var(--er);line-height:1.6}
+
+/* Input */
+.input-area{padding:12px 20px;border-top:1px solid var(--out);background:var(--s1);flex-shrink:0}
+.input-wrap{display:flex;gap:9px;align-items:flex-end}
+.input-box{flex:1;background:var(--s2);border:1.5px solid var(--out);border-radius:var(--r-lg);padding:10px 15px;font-family:var(--f);font-size:14px;color:var(--t1);outline:none;resize:none;min-height:44px;max-height:110px;line-height:1.6;transition:border-color 200ms,background 200ms}
+.input-box:focus{border-color:var(--pr);background:var(--s1)}
+.input-box:disabled{opacity:.5;cursor:not-allowed}
+.input-box::placeholder{color:var(--t3)}
+.send-btn{width:40px;height:40px;border-radius:50%;background:var(--pr);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;flex-shrink:0;transition:opacity 120ms;box-shadow:0 2px 6px rgba(27,107,74,.3)}
+.send-btn:hover{opacity:.85}
+.send-btn:disabled{opacity:.4;cursor:not-allowed}
+.input-hint{font-size:11px;color:var(--t3);margin-top:6px;font-family:var(--m)}
+
+/* Right panel */
+.side{background:var(--s1);border-left:1px solid var(--out);display:flex;flex-direction:column;overflow:hidden}
+.ptabs{display:flex;border-bottom:1px solid var(--out);flex-shrink:0}
+.ptab{flex:1;padding:11px 0;text-align:center;font-size:10px;font-family:var(--m);color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:all 120ms;letter-spacing:.08em;text-transform:uppercase}
+.ptab.on{color:var(--pr);border-bottom-color:var(--pr)}
+.ptab:hover:not(.on){color:var(--t2);background:var(--s2)}
+.pbody{flex:1;overflow-y:auto;padding:16px}
+.cx-sec{margin-bottom:16px}
+.cx-l{font-family:var(--m);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--t3);margin-bottom:9px}
+.cx-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--out);font-size:12px}
+.cx-row:last-child{border-bottom:none}
+.ck{font-family:var(--m);font-size:10px;color:var(--t3)}
+.cv{color:var(--t2)}.cv.hi{color:var(--pr);font-weight:500}.cv.warn{color:var(--wn)}.cv.err{color:var(--er)}
+.sbar-w{display:flex;align-items:center;gap:5px}
+.sbar{width:40px;height:3px;background:var(--out);border-radius:var(--r-f);overflow:hidden}
+.sbar-f{height:100%;border-radius:var(--r-f)}
+.sess-item{padding:7px 9px;border:1.5px solid var(--out);border-radius:var(--r-sm);margin-bottom:6px;font-size:12px;color:var(--t2)}
+.sess-ts{font-family:var(--m);font-size:9px;color:var(--t3);margin-bottom:2px}
+
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- ── API Key gate ──────────────────────────────────────────────────────── -->
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-logo">N</div>
+    <div class="gate-title">Enter your Anthropic API key</div>
+    <div class="gate-sub">Your key is used only in this browser session to call the Claude API directly. It is never stored, never sent to any server, and disappears when you close the tab.</div>
+    <label class="gate-label" for="apiKeyInput">API key</label>
+    <input class="gate-input" id="apiKeyInput" type="password" placeholder="sk-ant-api03-..." autocomplete="off" onkeydown="if(event.key==='Enter')startChat()">
+    <div class="gate-hint">
+      Get a key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys → Create key.<br>
+      Each query costs roughly $0.003 (Sonnet 4). Set a low spend limit for peace of mind.
+    </div>
+    <div class="gate-err" id="gateErr">Key must start with sk-ant-</div>
+    <button class="gate-btn" onclick="startChat()">Start Nexus →</button>
+    <div class="gate-skip">Just want to see the UI? <a onclick="skipGate()">Browse without AI</a></div>
+  </div>
+</div>
+
+<!-- ── Topbar ────────────────────────────────────────────────────────────── -->
+<div class="tb">
+  <div class="tb-l">
+    <div class="logo">N</div>
+    <div class="tb-name">Nexus</div>
+    <div class="tb-sep"></div>
+    <div class="status"><div class="sdot" id="sdot"></div><span id="status-text">Enter API key to start</span></div>
+  </div>
+  <div class="tb-r">
+    <button class="key-btn" onclick="changeKey()">⚙ API key</button>
+    <button class="tbtn" onclick="clearThread()">Clear</button>
+    <button class="tbtn stop" onclick="stopAgent()">■ Stop</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="chat-col">
+    <div class="sugg" id="suggBar">
+      <div class="sugg-l">Suggested queries</div>
+      <div class="sugg-chips">
+        <div class="sc" onclick="loadQ(this)">Who should I reconnect with this week?</div>
+        <div class="sc" onclick="loadQ(this)">Gaps in my Horizon Corp coverage?</div>
+        <div class="sc" onclick="loadQ(this)">What should I do next with Tom Brennan?</div>
+        <div class="sc" onclick="loadQ(this)">Draft a follow-up to Priya Nair</div>
+        <div class="sc" onclick="loadQ(this)">Schedule a meeting with Priya Nair</div>
+        <div class="sc" onclick="loadQ(this)">Who is my most important contact?</div>
+      </div>
+    </div>
+    <div class="thread" id="thread"></div>
+    <div class="input-area">
+      <div class="input-wrap">
+        <textarea class="input-box" id="inp" placeholder="Ask about your relationship map…" rows="1" onkeydown="kd(event)" oninput="ar(this)" disabled></textarea>
+        <button class="send-btn" id="sendBtn" onclick="send()" disabled>↑</button>
+      </div>
+      <div class="input-hint">Shift+Enter for new line · Nexus acts with your approval at every step · claude-sonnet-4</div>
+    </div>
+  </div>
+
+  <div class="side">
+    <div class="ptabs">
+      <div class="ptab on" onclick="switchTab(this,'ctx')">Context</div>
+      <div class="ptab" onclick="switchTab(this,'sess')">Session</div>
+    </div>
+    <div class="pbody">
+      <div id="tab-ctx">
+        <div class="cx-sec">
+          <div class="cx-l">Active session</div>
+          <div class="cx-row"><div class="ck">account</div><div class="cv hi">Horizon Corp</div></div>
+          <div class="cx-row"><div class="ck">owner</div><div class="cv">Dan Quinn</div></div>
+          <div class="cx-row"><div class="ck">goal</div><div class="cv">Advance deal — Q2</div></div>
+          <div class="cx-row"><div class="ck">queries</div><div class="cv" id="qCount">0</div></div>
+        </div>
+        <div class="cx-sec">
+          <div class="cx-l">Relationship scores</div>
+          <div class="cx-row"><div class="ck">Priya Nair</div><div class="cv hi"><div class="sbar-w"><div class="sbar"><div class="sbar-f" style="width:88%;background:var(--pr)"></div></div>0.88</div></div></div>
+          <div class="cx-row"><div class="ck">Sarah Mitchell</div><div class="cv"><div class="sbar-w"><div class="sbar"><div class="sbar-f" style="width:74%;background:var(--pr)"></div></div>0.74</div></div></div>
+          <div class="cx-row"><div class="ck">James Okafor</div><div class="cv"><div class="sbar-w"><div class="sbar"><div class="sbar-f" style="width:62%;background:var(--wn)"></div></div>0.62</div></div></div>
+          <div class="cx-row"><div class="ck">Elena Vasquez</div><div class="cv warn"><div class="sbar-w"><div class="sbar"><div class="sbar-f" style="width:51%;background:var(--wn)"></div></div>0.51</div></div></div>
+          <div class="cx-row"><div class="ck">David Cheng</div><div class="cv warn"><div class="sbar-w"><div class="sbar"><div class="sbar-f" style="width:44%;background:var(--wn)"></div></div>0.44</div></div></div>
+          <div class="cx-row"><div class="ck">Tom Brennan</div><div class="cv err"><div class="sbar-w"><div class="sbar"><div class="sbar-f" style="width:12%;background:var(--er)"></div></div>0.12</div></div></div>
+        </div>
+      </div>
+      <div id="tab-sess" style="display:none">
+        <div class="cx-l" style="margin-bottom:10px">Session history</div>
+        <div id="sessLog"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Config ───────────────────────────────────────────────────────────────────
+const API_URL = "https://api.anthropic.com/v1/messages";
+const MODEL   = "claude-sonnet-4-20250514";
+
+const SYSTEM = `You are Nexus, a multi-agent relationship intelligence assistant for B2B sales teams.
+Account: Horizon Corp | Owner: Dan Quinn | Goal: Advance deal — confirm Q2 pilot scope
+
+Contacts:
+| Name | Role | Org | Location | Score | Last contact |
+| Priya Nair | Champion | Horizon Corp | Dublin | 0.88 | 17 days ago |
+| Sarah Mitchell | Economic Buyer (CFO) | Horizon Corp | New York | 0.74 | 45 days ago |
+| James Okafor | Technical Evaluator | Horizon Corp | London | 0.62 | 33 days ago |
+| Elena Vasquez | Influencer | Horizon Corp | Rome | 0.51 | 91 days ago |
+| David Cheng | Legal Gatekeeper | Horizon Corp | Singapore | 0.44 | 41 days ago |
+| Tom Brennan | Blocker (VP) | Rival Vendor | Chicago | 0.12 | 147 days ago |
+
+Dynamics: Priya→James (champion path). Tom counter-influences James. Elena influences Sarah (91-day gap risk). Sarah has final sign-off. David needs pre-contract engagement.
+
+RESPOND WITH VALID JSON ONLY — no markdown, no preamble:
+{"intent":"relationship_insight|network_gap|action_suggestion|priority_ranking|contact_lookup|draft_outreach|schedule_meeting|compound_query","agents_invoked":["Agent Name"],"reasoning_steps":[{"step":1,"text":"...","tag":"ROUTE|SCORE|DATA|FLAG|DRAFT"}],"findings":[{"title":"...","confidence":"High|Medium|Low","priority":1,"contact":"name or null","text":"specific insight with real names and scores","human_judgment_required":false,"hjf_reason":null,"actions":["action label"]}],"draft":null,"gap_log":[],"cant_help":null,"summary":"one sentence"}
+Rules: draft=null unless outreach requested. human_judgment_required=true for Tom Brennan, contradictions, irreversible actions. Be specific — use real names, scores, dates.`;
+
+// ── State ────────────────────────────────────────────────────────────────────
+let API_KEY   = "";
+let history   = [];
+let qCount    = 0;
+let thinking  = false;
+
+// ── Gate ─────────────────────────────────────────────────────────────────────
+function startChat() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val.startsWith('sk-ant-')) {
+    document.getElementById('gateErr').style.display = 'block';
+    return;
+  }
+  API_KEY = val;
+  document.getElementById('gate').classList.add('hidden');
+  setStatus('Horizon Corp · Dan Quinn · Ready', 'idle');
+  setInputEnabled(true);
+}
+function skipGate() {
+  document.getElementById('gate').classList.add('hidden');
+  setStatus('Browse mode — no API key set', 'error');
+}
+function changeKey() {
+  API_KEY = "";
+  document.getElementById('apiKeyInput').value = "";
+  document.getElementById('gateErr').style.display = 'none';
+  document.getElementById('gate').classList.remove('hidden');
+  setInputEnabled(false);
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function setStatus(t, s) {
+  document.getElementById('status-text').textContent = t;
+  const d = document.getElementById('sdot');
+  d.className = 'sdot' + (s === 'thinking' ? ' thinking' : s === 'error' ? ' error' : '');
+}
+function setInputEnabled(v) {
+  document.getElementById('inp').disabled = !v;
+  document.getElementById('sendBtn').disabled = !v;
+}
+function ar(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight,110)+'px'; }
+function kd(e) { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send(); } }
+function loadQ(chip) { document.getElementById('inp').value = chip.textContent; document.getElementById('inp').focus(); }
+function switchTab(el, tab) {
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  ['ctx','sess'].forEach(t => { const e=document.getElementById('tab-'+t); if(e) e.style.display=t===tab?'block':'none'; });
+}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function scrollThread() { const t=document.getElementById('thread'); t.scrollTop=t.scrollHeight; }
+
+function append(el) { document.getElementById('thread').appendChild(el); scrollThread(); }
+
+function addUser(text) {
+  const d=document.createElement('div'); d.className='msg-u';
+  d.innerHTML=`<div class="ub">${esc(text)}</div>`; append(d);
+}
+function addThinking() {
+  const d=document.createElement('div'); d.className='msg-thinking'; d.id='thinking';
+  d.innerHTML=`<div class="t-av">N</div><div class="t-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div>`;
+  append(d);
+}
+function removeThinking() { const t=document.getElementById('thinking'); if(t) t.remove(); }
+
+// ── Render response ───────────────────────────────────────────────────────────
+function render(data) {
+  const nx=data.nexus, lat=data.latency_s;
+  const wrap=document.createElement('div'); wrap.className='msg-a';
+
+  // Header
+  const hdr=document.createElement('div'); hdr.className='a-hdr';
+  hdr.innerHTML=`<div class="a-av">N</div><div class="a-lbl">nexus · ${(nx.agents_invoked||[]).join(' → ')}</div><div class="a-lat">${lat}s</div>`;
+  wrap.appendChild(hdr);
+
+  // Reasoning chain
+  if (nx.reasoning_steps?.length) {
+    const cid='c'+Date.now();
+    const chain=document.createElement('div'); chain.className='chain';
+    chain.innerHTML=`<div class="chain-hdr" onclick="toggleChain('${cid}')"><span class="chain-arr" id="a${cid}">▶</span><span>Reasoning — ${nx.reasoning_steps.length} steps · ${(nx.agents_invoked||[]).length} agents</span></div><div class="chain-body" id="${cid}">${nx.reasoning_steps.map(s=>`<div class="cs"><div class="cs-n">0${s.step}</div><div class="cs-t">${esc(s.text)}</div><div class="cs-tag tag-${s.tag}">${s.tag}</div></div>`).join('')}</div>`;
+    wrap.appendChild(chain);
+  }
+
+  // Findings
+  if (nx.findings?.length) {
+    const top=nx.findings[0];
+    const pct=top.confidence==='High'?88:top.confidence==='Medium'?55:25;
+    const col=top.confidence==='High'?'var(--pr)':top.confidence==='Medium'?'var(--wn)':'var(--er)';
+    const card=document.createElement('div'); card.className='rcard';
+    card.innerHTML=`<div class="rcard-hdr"><div class="rcard-title">${esc(nx.summary||'Findings')}</div><div class="conf-w"><div class="conf-bar"><div class="conf-fill" style="width:${pct}%;background:${col}"></div></div><div class="conf-lbl">${top.confidence}</div></div></div>${nx.findings.map(f=>`<div class="finding"><div class="fbar bar-${f.confidence}"></div><div class="fbody"><div class="flbl">${f.priority?`Priority ${f.priority}`:''}<span class="ftag ftag-${f.confidence}">${f.confidence}</span>${f.contact?`<span class="fa">· ${esc(f.contact)}</span>`:''}</div><div class="ftext">${f.title?`<strong>${esc(f.title)}</strong> — `:''}${esc(f.text)}</div>${f.human_judgment_required&&f.hjf_reason?`<div class="hjf"><div class="hji">△</div><div>${esc(f.hjf_reason)}</div></div>`:''} ${f.actions?.length?`<div class="fc-acts">${f.actions.map((a,i)=>`<button class="fab ${i===0?'pr':''}" onclick="act('${esc(a)}')">${esc(a)}</button>`).join('')}</div>`:''}</div></div>`).join('')}`;
+    wrap.appendChild(card);
+  }
+
+  // Draft
+  if (nx.draft) {
+    const d=nx.draft, dc=document.createElement('div'); dc.className='draft-card';
+    dc.innerHTML=`<div class="draft-hdr"><div class="draft-subj">✉ ${esc(d.subject||'Draft')}</div><div class="draft-tag">Review before sending</div></div><div class="draft-body-text">"${esc(d.body)}"</div><div class="draft-hjf"><div class="hji">△</div><div>Generated from relationship context. Tone: ${esc(d.tone||'professional_warm')}. Review before sending.</div></div><div class="draft-acts"><button class="fab pr" onclick="act('Edit draft')">Edit draft</button><button class="fab" onclick="act('Save to Gmail')">Save to Gmail</button><button class="fab" onclick="act('Schedule meeting')">Schedule meeting</button><button class="fab" onclick="act('Different tone')">Different tone</button></div>`;
+    wrap.appendChild(dc);
+  }
+
+  // Gap log
+  if (nx.gap_log?.length) {
+    const g=document.createElement('div'); g.className='gap-box';
+    g.innerHTML=`<div class="gap-lbl">Gaps identified</div>${nx.gap_log.map(gl=>`<div class="gap-item">${esc(gl)}</div>`).join('')}`;
+    wrap.appendChild(g);
+  }
+
+  // Can't help
+  if (nx.cant_help) {
+    const c=document.createElement('div'); c.className='cant-box';
+    c.innerHTML=`<div class="cant-title">⊘ Outside Nexus scope</div>${esc(nx.cant_help)}`;
+    wrap.appendChild(c);
+  }
+
+  append(wrap);
+}
+
+function toggleChain(id) {
+  const b=document.getElementById(id), a=document.getElementById('a'+id);
+  const open=b.classList.contains('show');
+  b.classList.toggle('show',!open); a.classList.toggle('open',!open);
+}
+
+function act(l) { document.getElementById('inp').value=l; document.getElementById('inp').focus(); }
+
+function showErr(msg) {
+  const d=document.createElement('div'); d.className='msg-a';
+  d.innerHTML=`<div class="a-hdr"><div class="a-av" style="background:var(--er)">!</div><div class="a-lbl">nexus · error</div></div><div class="err-box"><strong>Error</strong><br>${esc(msg)}</div>`;
+  append(d); setStatus('Error', 'error');
+}
+
+// ── Send ──────────────────────────────────────────────────────────────────────
+async function send() {
+  const inp=document.getElementById('inp');
+  const query=inp.value.trim();
+  if (!query || thinking) return;
+  if (!API_KEY) { changeKey(); return; }
+
+  inp.value=''; inp.style.height='auto';
+  thinking=true; setInputEnabled(false);
+  setStatus('Thinking…','thinking');
+  document.getElementById('suggBar').style.display='none';
+
+  addUser(query);
+  addThinking();
+
+  qCount++;
+  document.getElementById('qCount').textContent=qCount;
+  const now=new Date();
+  const sl=document.getElementById('sessLog');
+  const si=document.createElement('div'); si.className='sess-item';
+  si.innerHTML=`<div class="sess-ts">TODAY · ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}</div>${esc(query.length>55?query.slice(0,55)+'…':query)}`;
+  sl.insertBefore(si,sl.firstChild);
+
+  const messages=[...history.slice(-6).map(h=>({role:h.role,content:h.content})),{role:'user',content:query}];
+  const started=Date.now();
+
+  try {
+    const resp=await fetch(API_URL,{
+      method:'POST',
+      headers:{'x-api-key':API_KEY,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:MODEL,max_tokens:2000,system:SYSTEM,messages})
+    });
+
+    removeThinking();
+
+    if (!resp.ok) {
+      const e=await resp.json().catch(()=>({error:{message:`HTTP ${resp.status}`}}));
+      showErr(e?.error?.message||`API error ${resp.status}`);
+      return;
+    }
+
+    const raw=await resp.json();
+    const text=(raw.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    let nexus;
+    try {
+      let clean=text.trim();
+      if(clean.startsWith('```')){clean=clean.replace(/^```(?:json)?\n?/,'').replace(/\n?```$/,'');}
+      nexus=JSON.parse(clean);
+    } catch {
+      nexus={intent:'unknown',agents_invoked:['orchestrator'],reasoning_steps:[{step:1,text:'Response parsing error.',tag:'FLAG'}],findings:[{title:'Response',confidence:'Medium',priority:1,contact:null,text,human_judgment_required:false,hjf_reason:null,actions:[]}],draft:null,gap_log:[],cant_help:null,summary:'Retry if unexpected.'};
+    }
+
+    const lat=((Date.now()-started)/1000).toFixed(2);
+    history.push({role:'user',content:query});
+    history.push({role:'assistant',content:JSON.stringify(nexus)});
+    render({nexus,latency_s:lat});
+    setStatus(`Horizon Corp · Dan Quinn · ${qCount} ${qCount===1?'query':'queries'}`,'idle');
+
+  } catch(e) {
+    removeThinking();
+    showErr(`Network error: ${e.message}. Check your API key and internet connection.`);
+  } finally {
+    thinking=false; setInputEnabled(true); document.getElementById('inp').focus();
+  }
+}
+
+function clearThread() {
+  document.getElementById('thread').innerHTML='';
+  document.getElementById('suggBar').style.display='block';
+  document.getElementById('sessLog').innerHTML='';
+  history=[]; qCount=0; document.getElementById('qCount').textContent='0';
+  setStatus('Horizon Corp · Dan Quinn · Ready','idle');
+}
+function stopAgent() {
+  removeThinking(); thinking=false; setInputEnabled(true);
+  setStatus('Stopped.','idle');
+}
+</script>
+</body>
+</html>
