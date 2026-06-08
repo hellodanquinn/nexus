@@ -11,7 +11,7 @@
  */
 
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
-const MODEL         = "claude-sonnet-4-6";
+const MODEL         = "claude-sonnet-4-5";
 
 const SYSTEM_PROMPT = `
 You are Nexus, a multi-agent relationship intelligence assistant for B2B sales teams.
