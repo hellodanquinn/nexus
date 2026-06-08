@@ -4,7 +4,7 @@ exports.handler = async () => ({
   body: JSON.stringify({
     status:      "ok",
     api_key_set: !!process.env.ANTHROPIC_API_KEY,
-    model:       "claude-sonnet-4-20250514",
+    model:       "claude-sonnet-4-6",
     environment: "netlify",
     timestamp:   new Date().toISOString(),
   }),

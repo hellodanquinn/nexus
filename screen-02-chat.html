@@ -217,9 +217,6 @@ body{background:var(--surf);color:var(--t1);font-family:var(--f);font-size:14px;
     <div class="status"><div class="sdot" id="sdot"></div><span id="status-text">Enter API key to start</span></div>
   </div>
   <div class="tb-r">
-    <button class="key-btn" onclick="changeKey()">⚙ API key</button>
-    <button class="tbtn" onclick="clearThread()">Clear</button>
-    <button class="tbtn stop" onclick="stopAgent()">■ Stop</button>
   </div>
 </div>
 
@@ -240,9 +237,11 @@ body{background:var(--surf);color:var(--t1);font-family:var(--f);font-size:14px;
     <div class="input-area">
       <div class="input-wrap">
         <textarea class="input-box" id="inp" placeholder="Ask about your relationship map…" rows="1" onkeydown="kd(event)" oninput="ar(this)" disabled></textarea>
+        <button class="tbtn" onclick="clearThread()" style="white-space:nowrap;flex-shrink:0">Clear</button>
+        <button class="tbtn stop" onclick="stopAgent()" style="white-space:nowrap;flex-shrink:0">■ Stop</button>
         <button class="send-btn" id="sendBtn" onclick="send()" disabled>↑</button>
       </div>
-      <div class="input-hint">Shift+Enter for new line · Nexus acts with your approval at every step · claude-sonnet-4</div>
+      <div class="input-hint">Shift+Enter for new line · Nexus acts with your approval at every step · claude-sonnet-4-6</div>
     </div>
   </div>
 
@@ -281,7 +280,7 @@ body{background:var(--surf);color:var(--t1);font-family:var(--f);font-size:14px;
 <script>
 // ── Config ───────────────────────────────────────────────────────────────────
 const API_URL = "https://api.anthropic.com/v1/messages";
-const MODEL   = "claude-sonnet-4-20250514";
+const MODEL   = "claude-sonnet-4-6";
 
 const SYSTEM = `You are Nexus, a multi-agent relationship intelligence assistant for B2B sales teams.
 Account: Horizon Corp | Owner: Dan Quinn | Goal: Advance deal — confirm Q2 pilot scope
